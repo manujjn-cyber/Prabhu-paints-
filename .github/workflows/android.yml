@@ -1,5 +1,8 @@
 name: Build Android pilot APK
 on:
+  push:
+    branches: [main]
+    paths: ["android/**", ".github/workflows/android.yml"]
   workflow_dispatch:
     inputs:
       shop_url:
@@ -25,7 +28,7 @@ jobs:
         run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
       - name: Validate app URL and build
         env:
-          SHOP_URL: ${{ inputs.shop_url }}
+          SHOP_URL: ${{ inputs.shop_url || 'https://prabhu-paints-shop-production.up.railway.app' }}
         working-directory: android
         run: gradle --no-daemon assembleDebug "-PshopUrl=$SHOP_URL"
       - uses: actions/upload-artifact@v4

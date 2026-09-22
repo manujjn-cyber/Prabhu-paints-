@@ -1,7 +1,7 @@
 name: Build Android pilot APK
 on:
   push:
-    branches: [main]
+    branches: [main, apk-atelier]
     paths: ["android/**", ".github/workflows/android.yml"]
   workflow_dispatch:
     inputs:
@@ -36,7 +36,6 @@ jobs:
         run: gradle --no-daemon assembleDebug "-PshopUrl=$SHOP_URL"
       - uses: actions/upload-artifact@v4
         with:
-          name: Prabhu-Paints-Pilot-APK
+          name: Prabhu-Paints-Atelier-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 14
-

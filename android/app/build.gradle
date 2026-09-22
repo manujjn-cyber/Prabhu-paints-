@@ -7,11 +7,11 @@ android {
     namespace 'in.prabhupaints.shop'
     compileSdk 35
     defaultConfig {
-        applicationId 'in.prabhupaints.shop'
+        applicationId 'in.prabhupaints.shop.atelier'
         minSdk 26
         targetSdk 35
-        versionCode 1
-        versionName '0.1-pilot'
+        versionCode 2
+        versionName '0.2-atelier-pilot'
         buildConfigField 'String', 'SHOP_URL', '"' + shopUrl.replaceAll('/$', '') + '/"'
     }
     buildFeatures { buildConfig true }

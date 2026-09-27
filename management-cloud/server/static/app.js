@@ -6,6 +6,7 @@ function valid(s){if(!s||s.schema!==1||!Array.isArray(s.products)||!Array.isArra
 try{let raw=window.Shop?Shop.load():localStorage.getItem('prabhu-stock-v1');state=raw?valid(JSON.parse(raw)):fresh();}catch(err){document.body.innerHTML='<p style="padding:30px">Stored data could not be read. Your data has not been overwritten. Restore a known backup or contact support.</p>';throw err;}
 if(state.pricing)settings=state.pricing;
 async function commit(next){
+ upgradeState(next);
  if(cloudBusy){alert('A save is in progress. Please wait.');return false;}
  next.pricing=settings;
  if(cloud.mode==='online' && JSON.stringify(cloudPayload(next))!==JSON.stringify(cloudPayload(state))){

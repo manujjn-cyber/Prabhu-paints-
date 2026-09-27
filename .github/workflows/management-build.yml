@@ -2,6 +2,7 @@ name: Build offline stock shell
 on:
   push:
     branches: [management-cloud-20260927]
+    paths: ["management-cloud/android/**"]
 permissions:
   contents: read
 jobs:

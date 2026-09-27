@@ -1,0 +1,1 @@
+const OPENING_STOCK=[];

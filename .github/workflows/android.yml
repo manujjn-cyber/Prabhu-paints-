@@ -1,14 +1,7 @@
-name: Build Android pilot APK
+name: Build Prabhu Ledger APK
 on:
   push:
-    branches: [main]
-    paths: ["android/**", ".github/workflows/android.yml"]
-  workflow_dispatch:
-    inputs:
-      shop_url:
-        description: 'Deployed HTTPS origin, e.g. https://your-shop.example.com'
-        required: true
-        type: string
+    branches: [prabhu-ledger-apk-build]
 permissions:
   contents: read
 jobs:
@@ -20,23 +13,17 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - uses: android-actions/setup-android@v3
-        with:
-          packages: platform-tools
-          log-accepted-android-sdk-licenses: false
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.11.1'
-      - name: Install SDK
-        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
-      - name: Validate app URL and build
-        env:
-          SHOP_URL: ${{ inputs.shop_url || 'https://prabhu-paints-shop-production.up.railway.app' }}
-        working-directory: android
-        run: gradle --no-daemon assembleDebug "-PshopUrl=$SHOP_URL"
+          gradle-version: '8.9'
+      - uses: android-actions/setup-android@v3
+      - run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - run: mkdir -p ledger-apk && tar -xzf ledger-apk-src.tar.gz -C ledger-apk
+      - working-directory: ledger-apk/android
+        run: gradle assembleDebug --stacktrace
+      - run: cp ledger-apk/android/app/build/outputs/apk/debug/app-debug.apk Prabhu-Ledger.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: Prabhu-Paints-Pilot-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: Prabhu-Ledger-APK
+          path: Prabhu-Ledger.apk
           retention-days: 14
-

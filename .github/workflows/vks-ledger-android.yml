@@ -19,9 +19,12 @@ jobs:
         with:
           gradle-version: '8.11.1'
       - name: Install Android SDK
+        shell: bash
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+          SDKMANAGER="${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="/usr/local/lib/android/sdk/cmdline-tools/12.0/bin/sdkmanager"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
       - working-directory: ledger-android
         run: gradle --no-daemon assembleDebug
       - uses: actions/upload-artifact@v4

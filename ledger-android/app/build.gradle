@@ -2,7 +2,7 @@ plugins { id 'com.android.application' }
 android {
  namespace 'in.prabhupaints.vksledger'
  compileSdk 35
- defaultConfig { applicationId 'in.prabhupaints.vksledger'; minSdk 26; targetSdk 35; versionCode 11; versionName '1.2.2-v11plus' }
+ defaultConfig { applicationId 'in.prabhupaints.vksledger'; minSdk 26; targetSdk 35; versionCode 10; versionName '1.3.0-multiparty' }
  compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
 dependencies {

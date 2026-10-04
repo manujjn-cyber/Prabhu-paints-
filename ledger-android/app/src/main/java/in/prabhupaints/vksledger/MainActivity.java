@@ -423,9 +423,10 @@ public class MainActivity extends Activity {
 
     private JSONObject parseXlsx(Uri uri) throws Exception {
         Map<String, byte[]> entries = new HashMap<>();
-        try (InputStream in = getContentResolver().openInputStream(uri);
+        InputStream raw = getContentResolver().openInputStream(uri);
+        if (raw == null) throw new Exception("Could not open Excel file");
+        try (InputStream in = raw;
              ZipInputStream zip = new ZipInputStream(in)) {
-            if (in == null) throw new Exception("Could not open Excel file");
             ZipEntry e;
             while ((e = zip.getNextEntry()) != null) {
                 if (!e.isDirectory()) entries.put(e.getName(), readAllBytes(zip));

@@ -195,7 +195,7 @@ public class MainActivity extends Activity {
     }
 
     private String reportName(String ext) {
-        return "VKS_Professional_Ledger_" + new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date()) + "." + ext;
+        return "Prabhu_Paints_Ledger_" + new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date()) + "." + ext;
     }
 
     private void launchSaveDialog(String mime, String name) {
@@ -289,9 +289,14 @@ public class MainActivity extends Activity {
             c.drawColor(Color.WHITE);
 
             float y = 35;
-            c.drawText("VKS PARTY LEDGER", M, y, title);
-            y += 15;
-            c.drawText("Prabhu Paints • Professional Ledger Statement", M, y, label);
+            c.drawText("PRABHU PAINTS", M, y, title);
+            y += 14;
+            c.drawText("Tibra Road, Modinagar - 201204 • 7014429635", M, y, label);
+            y += 14;
+            String partyLine = "Party: " + root.optString("partyName","") +
+                    (root.optString("partyLocation","").isEmpty() ? "" : ", " + root.optString("partyLocation",""));
+            if (!root.optString("partyShort","").isEmpty()) partyLine += " (" + root.optString("partyShort","") + ")";
+            c.drawText(fit(partyLine, strong, W - (2*M)), M, y, strong);
             y += 16;
 
             c.drawText("Financial Year: " + root.optString("fy","All"), M, y, strong);
@@ -346,7 +351,7 @@ public class MainActivity extends Activity {
         JSONArray rows = root.optJSONArray("rows");
         if (rows == null) rows = new JSONArray();
 
-        final int W = 900, M = 34, headerH = 310, rowH = 38;
+        final int W = 900, M = 34, headerH = 350, rowH = 38;
         int h = headerH + Math.max(1, rows.length()) * rowH + 60;
         h = Math.min(h, 12000);
 
@@ -355,20 +360,24 @@ public class MainActivity extends Activity {
         c.drawColor(Color.WHITE);
 
         Paint brand = new Paint(); brand.setColor(Color.rgb(23,60,53));
-        c.drawRect(0,0,W,220,brand);
+        c.drawRect(0,0,W,250,brand);
         Paint title = paint(38,Color.WHITE,true);
         Paint light = paint(20,Color.rgb(224,238,233),false);
         Paint dark = paint(22,Color.rgb(23,60,53),true);
 
-        c.drawText("VKS PARTY LEDGER",M,55,title);
-        c.drawText("Prabhu Paints • Professional Ledger Statement",M,90,light);
-        c.drawText(root.optString("fy","All")+" • "+root.optString("type","All"),M,126,light);
-        c.drawText("Timeline: "+root.optString("timeline","All dates"),M,160,light);
-        c.drawText("Credit "+root.optString("credit","")+"  |  Debit "+root.optString("debit","")+"  |  Net "+root.optString("net",""),M,196,light);
+        c.drawText("PRABHU PAINTS",M,55,title);
+        c.drawText("Tibra Road, Modinagar - 201204 • 7014429635",M,90,light);
+        String party = root.optString("partyName","");
+        if (!root.optString("partyLocation","").isEmpty()) party += ", " + root.optString("partyLocation","");
+        if (!root.optString("partyShort","").isEmpty()) party += " (" + root.optString("partyShort","") + ")";
+        c.drawText(fit("Party: "+party, light, W-(2*M)),M,126,light);
+        c.drawText(root.optString("fy","All")+" • "+root.optString("type","All"),M,162,light);
+        c.drawText("Timeline: "+root.optString("timeline","All dates"),M,196,light);
+        c.drawText("Credit "+root.optString("credit","")+"  |  Debit "+root.optString("debit","")+"  |  Net "+root.optString("net",""),M,232,light);
 
-        c.drawText("Opening: "+root.optString("opening","")+"    Closing: "+root.optString("closing",""),M,267,dark);
+        c.drawText("Opening: "+root.optString("opening","")+"    Closing: "+root.optString("closing",""),M,302,dark);
 
-        int y=315;
+        int y=355;
         Paint hb=new Paint(); hb.setColor(Color.rgb(235,242,239)); c.drawRect(M,y-28,W-M,y+10,hb);
         Paint head=paint(17,Color.rgb(23,60,53),true), cell=paint(16,Color.rgb(35,40,45),false), bold=paint(16,Color.rgb(35,40,45),true);
         int xDate=M, xPart=160, xCr=545, xDr=655, xBal=760;

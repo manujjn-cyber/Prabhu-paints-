@@ -243,7 +243,7 @@ public class MainActivity extends Activity {
                 while ((n = is.read(buf)) > 0) bos.write(buf, 0, n);
                 String json = bos.toString("UTF-8");
                 getSharedPreferences("vivek_painter_store", MODE_PRIVATE).edit().putString("data", json).apply();
-                webView.evaluateJavascript("window.restoreBackup(" + jsQuote(json) + ")", null);
+                webView.evaluateJavascript("window.onBackupImported&&window.onBackupImported(" + jsQuote(json) + ")", null);
                 Toast.makeText(this, "Backup restored", Toast.LENGTH_LONG).show();
             } catch (Exception e) {
                 new AlertDialog.Builder(this).setTitle("Restore failed").setMessage(e.getMessage()).setPositiveButton("OK", null).show();
@@ -252,7 +252,7 @@ public class MainActivity extends Activity {
     }
 
     @Override public void onBackPressed() {
-        webView.evaluateJavascript("window.appBack&&window.appBack()", value -> {
+        webView.evaluateJavascript("window.handleAndroidBack&&window.handleAndroidBack()", value -> {
             if ("false".equals(value) || "null".equals(value)) MainActivity.super.onBackPressed();
         });
     }

@@ -210,7 +210,10 @@ label{display:block;margin:10px 0 5px;color:var(--muted);font-size:12px;font-wei
       <button class="tool" onclick="shareBackupWhatsApp()"><b>WhatsApp Backup</b><span>Send the JSON backup as a WhatsApp file attachment.</span></button>
       <button class="tool" onclick="shareCsvWhatsApp()"><b>WhatsApp CSV</b><span>Send the filtered ledger as a CSV attachment.</span></button>
       <button class="tool" onclick="restoreBackup()"><b>Restore Backup</b><span>Restore user-added entries and pictures from JSON.</span></button>
-      <button class="tool" onclick="printLedger()"><b>Print / Save PDF</b><span>Android print dialog; choose “Save as PDF”.</span></button>
+      <button class="tool" onclick="savePdfNative()"><b>Save PDF</b><span>Create a real multi-page PDF of the current filtered ledger.</span></button>
+      <button class="tool" onclick="saveJpegNative()"><b>Save JPEG</b><span>Create a high-resolution long image of the current filtered ledger.</span></button>
+      <button class="tool" onclick="whatsappPdf()"><b>WhatsApp PDF</b><span>Send the generated PDF directly to WhatsApp.</span></button>
+      <button class="tool" onclick="whatsappJpeg()"><b>WhatsApp JPEG</b><span>Send the generated ledger image directly to WhatsApp.</span></button>
       <button class="tool" onclick="shareSummaryWhatsApp()"><b>WhatsApp Summary</b><span>Send current ledger totals directly to WhatsApp.</span></button>
       <button class="tool" onclick="shareSummary()"><b>Android Share</b><span>Share current totals through any supported app.</span></button>
       <button class="tool" onclick="showIssues()"><b>Data Flags</b><span>Review blank or questionable source dates.</span></button>
@@ -411,7 +414,7 @@ function fileSave(content,mime,name){
   var blob=new Blob([content],{type:mime}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)
 }
 function backupPayload(){
-  return {app:'VKS Party Ledger',version:'1.3.0',exportedAt:new Date().toISOString(),sourceStats:SOURCE_STATS,userEntries:user(),images:imgs()}
+  return {app:'VKS Party Ledger',version:'1.4.0',exportedAt:new Date().toISOString(),sourceStats:SOURCE_STATS,userEntries:user(),images:imgs()}
 }
 function backupText(){return JSON.stringify(backupPayload(),null,2)}
 function exportBackup(){
@@ -447,6 +450,34 @@ function restoreBackupFromNative(text){
   if(!p || !Array.isArray(p.userEntries)){notify('This is not a valid VKS Ledger backup');return}
   if(!confirm('Restore '+p.userEntries.length+' app-added transaction(s)? Current app-added data will be replaced.'))return;
   saveUser(p.userEntries);if(p.images && typeof p.images==='object')saveImgs(p.images);render();notify('Backup restored successfully')
+}
+function reportPayload(){
+  var arr=filtered(),t=totals(arr),label=fy.value==='All'?'All years':fy.value;
+  return JSON.stringify({
+    fy:label,
+    filterLabel:activeType==='all'?'All transaction types':activeType,
+    count:arr.length,
+    credit:money(t.cr),
+    debit:money(t.dr),
+    currentBalance:money(fy.value==='All'?currentFyBalance('2026-27'):currentFyBalance(fy.value)),
+    rows:arr.map(function(x){return {date:x.date||'',particular:x.particular||'',credit:x.credit,debit:x.debit,balance:x.balance,notes:x.notes||''}})
+  })
+}
+function savePdfNative(){
+  if(window.AndroidApp&&AndroidApp.exportPdf){AndroidApp.exportPdf(reportPayload(),false);closeTools()}
+  else notify('PDF export requires the Android APK')
+}
+function saveJpegNative(){
+  if(window.AndroidApp&&AndroidApp.exportJpeg){AndroidApp.exportJpeg(reportPayload(),false);closeTools()}
+  else notify('JPEG export requires the Android APK')
+}
+function whatsappPdf(){
+  if(window.AndroidApp&&AndroidApp.exportPdf){AndroidApp.exportPdf(reportPayload(),true);closeTools()}
+  else notify('PDF sharing requires the Android APK')
+}
+function whatsappJpeg(){
+  if(window.AndroidApp&&AndroidApp.exportJpeg){AndroidApp.exportJpeg(reportPayload(),true);closeTools()}
+  else notify('JPEG sharing requires the Android APK')
 }
 function printLedger(){closeTools();setTimeout(function(){if(window.AndroidApp&&AndroidApp.printPage)AndroidApp.printPage();else window.print()},150)}
 function summaryText(){

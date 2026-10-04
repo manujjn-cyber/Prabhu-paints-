@@ -13,15 +13,15 @@ header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,var(--
 .wrap{padding:12px;max-width:760px;margin:auto;padding-bottom:86px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}.stat,.card,.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.stat{padding:10px;min-width:0}.stat small{color:var(--muted);font-size:10px}.stat b{display:block;font-size:15px;margin-top:4px;overflow:hidden;text-overflow:ellipsis}.credit{color:var(--green)}.debit{color:var(--red)}
 .panel{padding:10px}.controls{display:grid;grid-template-columns:112px 1fr;gap:8px}.controls input,.controls select,.modal input,.modal select,.modal textarea,.exportBox input,.exportBox select{width:100%;padding:11px;border:1px solid #d1d5db;border-radius:10px;background:white;color:var(--ink);outline:none}.controls input:focus,.modal input:focus,.exportBox input:focus{border-color:var(--brand2);box-shadow:0 0 0 3px #245c5114}
 .chips{display:flex;gap:7px;overflow:auto;padding-top:9px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}.chip{white-space:nowrap;border:1px solid #d9dee3;background:#fff;border-radius:999px;padding:7px 11px;font-size:12px;font-weight:700;color:#4b5563}.chip.active{background:var(--brand);border-color:var(--brand);color:#fff}
-.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.btn{border:0;border-radius:10px;padding:11px 12px;font-weight:800;background:var(--brand);color:white}.btn.alt{background:#fff;color:var(--brand);border:1px solid var(--brand)}.btn.gold{background:var(--gold)}.btn.danger{background:#fff0f0;color:#b42318;border:1px solid #ffd3d3}
+.toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.topActions{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:8px;margin:10px 0}.btn{border:0;border-radius:10px;padding:11px 12px;font-weight:800;background:var(--brand);color:white}.btn.alt{background:#fff;color:var(--brand);border:1px solid var(--brand)}.btn.gold{background:var(--gold)}.btn.danger{background:#fff0f0;color:#b42318;border:1px solid #ffd3d3}
 .entry{padding:13px;margin:8px 0}.row{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.date{font-weight:800;font-size:13px}.part{font-size:15px;font-weight:750;margin:7px 0}.amt{font-weight:900;font-size:17px;white-space:nowrap}.balance{font-weight:800;font-size:12px}.meta{color:var(--muted);font-size:12px;line-height:1.4}.badge{display:inline-block;padding:3px 7px;border-radius:999px;background:#eef2f7;font-size:10px;font-weight:800;margin-right:4px}.badge.photo{background:#eef6ff;color:#1d4ed8}.source{font-size:10px;color:#8a8f98;margin-top:6px}
 .photos{display:flex;gap:7px;overflow:auto;margin-top:8px;padding-bottom:2px}.thumb{width:70px;height:70px;object-fit:cover;border-radius:10px;border:1px solid var(--line);flex:0 0 auto}.photoBtn{width:100%;margin-top:9px;padding:8px 9px;border:1px solid #d1d5db;background:#fff;border-radius:9px;font-weight:750;color:#374151}
 .empty{text-align:center;color:var(--muted);padding:30px}.fab{position:fixed;right:18px;bottom:18px;width:58px;height:58px;border-radius:50%;font-size:29px;border:0;background:var(--gold);color:white;box-shadow:0 9px 26px #0004;z-index:15}
 .modalBack{position:fixed;inset:0;background:#0008;display:none;align-items:flex-end;z-index:30}.modalBack.show{display:flex}.modal{background:white;width:100%;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:16px calc(16px + env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}.modal h2{margin:0 0 4px}.modal p{margin:0 0 10px;color:var(--muted);font-size:12px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.modal label,.exportBox label{display:block;font-size:11px;color:var(--muted);font-weight:750;margin:10px 0 4px}.note{background:#fff8db;border:1px solid #ffe066;padding:9px;border-radius:10px;margin:8px 0;font-size:11px;line-height:1.4}
 .previewGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:8px}.previewItem{position:relative}.previewItem img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:9px;border:1px solid var(--line)}.removePic{position:absolute;right:3px;top:3px;width:24px;height:24px;border-radius:50%;border:0;background:#000b;color:#fff;font-weight:900}
 .exportBox{background:#f8faf9;border:1px solid #d6e2de;border-radius:13px;padding:11px;margin:10px 0}.calcGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}.calc{background:white;border:1px solid #e1e6e4;border-radius:10px;padding:8px;min-width:0}.calc small{display:block;color:var(--muted);font-size:9px}.calc b{display:block;font-size:12px;margin-top:3px;overflow:hidden;text-overflow:ellipsis}.exportActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-.viewer{position:fixed;inset:0;background:#000e;display:none;z-index:60;align-items:center;justify-content:center;padding:18px}.viewer.show{display:flex}.viewer img{max-width:100%;max-height:88vh;border-radius:10px}.viewer button{position:absolute;right:15px;top:calc(15px + env(safe-area-inset-top));width:42px;height:42px;border-radius:50%;border:0;font-size:22px}
-@media(max-width:520px){.stats{grid-template-columns:1fr 1fr}.calcGrid{grid-template-columns:1fr 1fr}.previewGrid{grid-template-columns:repeat(3,1fr)}}@media(min-width:600px){.modalBack{align-items:center;justify-content:center}.modal{max-width:560px;border-radius:20px}.stats{grid-template-columns:repeat(4,1fr)}}
+.importBox{background:#f8faf9;border:1px solid #d6e2de;border-radius:13px;padding:11px;margin:10px 0}.importBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.importPreview{margin-top:10px}.importPreview .calcGrid{margin-top:6px}.pasteBox{width:100%;min-height:92px;padding:10px;border:1px solid #d1d5db;border-radius:10px;resize:vertical}.sample{font-size:10px;color:var(--muted);line-height:1.45;margin-top:6px}.viewer{position:fixed;inset:0;background:#000e;display:none;z-index:60;align-items:center;justify-content:center;padding:18px}.viewer.show{display:flex}.viewer img{max-width:100%;max-height:88vh;border-radius:10px}.viewer button{position:absolute;right:15px;top:calc(15px + env(safe-area-inset-top));width:42px;height:42px;border-radius:50%;border:0;font-size:22px}
+@media(max-width:520px){.stats{grid-template-columns:1fr 1fr}.calcGrid{grid-template-columns:1fr 1fr}.previewGrid{grid-template-columns:repeat(3,1fr)}.topActions{grid-template-columns:1fr 1fr}.topActions .importMain{grid-column:1/-1}.importBtns{grid-template-columns:1fr 1fr}}@media(min-width:600px){.modalBack{align-items:center;justify-content:center}.modal{max-width:560px;border-radius:20px}.stats{grid-template-columns:repeat(4,1fr)}}
 </style>
 </head>
 <body>
@@ -36,7 +36,7 @@ header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,var(--
    <button class="chip active" data-type="all">All</button><button class="chip" data-type="bill">Bills</button><button class="chip" data-type="payment">Payments</button><button class="chip" data-type="recharge">Recharge</button><button class="chip" data-type="photos">With Photos</button>
   </div>
  </div>
- <div class="toolbar"><button class="btn gold" onclick="openExport()">Export Ledger</button><button class="btn alt" onclick="showIssues()">Data Flags</button></div>
+ <div class="topActions"><button class="btn gold" onclick="openExport()">Export Ledger</button><button class="btn alt importMain" onclick="openImport()">Import Data</button><button class="btn alt" onclick="showIssues()">Data Flags</button></div>
  <div id="list"></div>
 </div>
 <button class="fab" onclick="openAdd()">+</button>
@@ -65,12 +65,33 @@ header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,var(--
  <div class="exportActions"><button class="btn" onclick="savePdf()">Save PDF</button><button class="btn" onclick="saveJpeg()">Save JPEG</button><button class="btn alt" onclick="sharePdf()">Share PDF</button><button class="btn alt" onclick="shareJpeg()">Share JPEG</button><button class="btn alt" onclick="exportBackup()">JSON Backup</button><button class="btn alt" onclick="closeExport()">Close</button></div>
 </div></div>
 
+<div class="modalBack" id="importBack" onclick="if(event.target===this)closeImport()"><div class="modal">
+ <h2>Import Ledger Data</h2><p>Import new transactions without replacing the verified built-in ledger. Exact duplicates are skipped automatically.</p>
+ <div class="importBox">
+  <div class="grid2">
+   <div><label>Default financial year</label><select id="impFy"><option value="auto">Auto from date</option><option>2026-27</option><option>2025-26</option><option>2024-25</option></select></div>
+   <div><label>Duplicate handling</label><select id="impDup"><option value="skip">Skip exact duplicates</option></select></div>
+  </div>
+  <div class="importBtns">
+   <button class="btn" onclick="pickImport('xlsx')">Excel .XLSX</button>
+   <button class="btn" onclick="pickImport('csv')">CSV / TSV</button>
+   <button class="btn alt" onclick="pickImport('json')">JSON Backup</button>
+   <button class="btn alt" onclick="usePastedData()">Paste Table</button>
+  </div>
+  <label>Paste CSV / tab-separated rows</label>
+  <textarea id="impPaste" class="pasteBox" placeholder="Date&#9;Particular&#9;Credit&#9;Debit&#10;2026-10-05&#9;BILL&#9;12500&#9;"></textarea>
+  <div class="sample">Recognised columns include Date, FY/Financial Year, Particular/Description, Credit/Bill, Debit/Payment, Balance and Notes. If no header is found, fallback order is Date, Particular, Credit, Debit, Balance, Notes.</div>
+ </div>
+ <div id="importPreview" class="importPreview"></div>
+ <div class="toolbar"><button class="btn alt" onclick="closeImport()">Cancel</button><button class="btn" id="applyImportBtn" onclick="applyImport()" disabled>Import These Entries</button></div>
+</div></div>
+
 <div class="viewer" id="viewer" onclick="closeViewer()"><button onclick="closeViewer()">×</button><img id="viewerImg"></div>
 
 <script src="ledger_data.js"></script>
 <script>
 const KEY='vks_user_entries_v1', IMG='vks_images_v1';
-let editId=null,pendingPhotos=[],activeType='all';
+let editId=null,pendingPhotos=[],activeType='all',pendingImport=[],pendingImportImages={},pendingImportStats=null;
 
 const user=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}};
 const saveUser=x=>localStorage.setItem(KEY,JSON.stringify(x));
@@ -100,7 +121,7 @@ function render(){
  heroBalance.textContent=money(bal);balLabel.textContent=sel==='All'?'2026-27 CURRENT BALANCE':sel+' BALANCE';
  stats.innerHTML=`<div class=stat><small>Entries</small><b>${arr.length}</b></div><div class=stat><small>Credit</small><b class=credit>${money(t.cr)}</b></div><div class=stat><small>Debit</small><b class=debit>${money(t.dr)}</b></div><div class=stat><small>Filtered Net</small><b>${money(t.cr-t.dr)}</b></div>`;
  list.innerHTML=arr.length?'':'<div class="card empty">No matching entries</div>';
- arr.slice().reverse().forEach(x=>{let cr=x.credit!=null,amount=cr?x.credit:x.debit,ps=photoList(x.id),ph=ps.length?`<div class=photos>${ps.slice(0,4).map((p,i)=>`<img class=thumb src="${p}" onclick="event.stopPropagation();openViewer('${x.id}',${i})">`).join('')}${ps.length>4?`<span class=badge>+${ps.length-4} more</span>`:''}</div>`:'';list.innerHTML+=`<div class="card entry"><div class=row><span class=date>${x.date||'Date not entered'}</span><span class="amt ${cr?'credit':'debit'}">${cr?'+':'−'} ${money(amount)}</span></div><div class=part>${esc(x.particular)}</div>${x.notes?`<div class=meta>${esc(x.notes)}</div>`:''}<div class=row><span><span class=badge>${x.fy}</span><span class=badge>${x.source==='Imported XLSX'?'SOURCE':'USER'}</span>${ps.length?`<span class="badge photo">${ps.length} PHOTO${ps.length>1?'S':''}</span>`:''}</span><span class=balance>Bal: ${money(x.balance)}</span></div>${ph}<button class=photoBtn onclick="openEntry('${x.id}')">${ps.length?'View / add pictures':'Add pictures / edit'}</button><div class=source>${x.source==='Imported XLSX'?'Workbook row '+x.sourceRow:'Added in app'}</div></div>`})
+ arr.slice().reverse().forEach(x=>{let cr=x.credit!=null,amount=cr?x.credit:x.debit,ps=photoList(x.id),ph=ps.length?`<div class=photos>${ps.slice(0,4).map((p,i)=>`<img class=thumb src="${p}" onclick="event.stopPropagation();openViewer('${x.id}',${i})">`).join('')}${ps.length>4?`<span class=badge>+${ps.length-4} more</span>`:''}</div>`:'';list.innerHTML+=`<div class="card entry"><div class=row><span class=date>${x.date||'Date not entered'}</span><span class="amt ${cr?'credit':'debit'}">${cr?'+':'−'} ${money(amount)}</span></div><div class=part>${esc(x.particular)}</div>${x.notes?`<div class=meta>${esc(x.notes)}</div>`:''}<div class=row><span><span class=badge>${x.fy}</span><span class=badge>${x.source==='Imported XLSX'?'SOURCE':x.source==='Imported file'?'IMPORT':'USER'}</span>${ps.length?`<span class="badge photo">${ps.length} PHOTO${ps.length>1?'S':''}</span>`:''}</span><span class=balance>Bal: ${money(x.balance)}</span></div>${ph}<button class=photoBtn onclick="openEntry('${x.id}')">${ps.length?'View / add pictures':'Add pictures / edit'}</button><div class=source>${x.source==='Imported XLSX'?'Workbook row '+x.sourceRow:x.source==='Imported file'?'Imported file entry':'Added in app'}</div></div>`})
 }
 function openAdd(){editId=null;pendingPhotos=[];[mdate,mfy,mpart,mcr,mdr,mnotes].forEach(el=>el.disabled=false);mtitle.textContent='Add Entry';msub.textContent='Add a bill, payment, recharge or note.';mdate.value=new Date().toISOString().slice(0,10);mfy.value=fy.value==='All'?'2026-27':fy.value;mpart.value='';mcr.value='';mdr.value='';mnotes.value='';mphoto.value='';renderPhotoPreview();entryBack.classList.add('show')}
 function openEntry(id){let x=all().find(z=>z.id===id);if(!x)return;editId=id;pendingPhotos=[];let imported=x.source==='Imported XLSX';mtitle.textContent=imported?'Transaction Pictures':'Edit Entry';msub.textContent=imported?'Source ledger fields are protected. You can add or remove pictures.':'Edit entry and manage its pictures.';mdate.value=x.date||'';mfy.value=x.fy;mpart.value=x.particular;mcr.value=x.credit??'';mdr.value=x.debit??'';mnotes.value=x.notes||'';[mdate,mfy,mpart,mcr,mdr,mnotes].forEach(el=>el.disabled=imported);mphoto.value='';renderPhotoPreview();entryBack.classList.add('show')}
@@ -118,6 +139,89 @@ function saveEntry(){
  closeEntry();render()
 }
 
+
+function openImport(){pendingImport=[];pendingImportImages={};pendingImportStats=null;impPaste.value='';importPreview.innerHTML='<div class="note">Choose Excel, CSV, JSON, or paste rows to preview before importing.</div>';applyImportBtn.disabled=true;impFy.value=fy.value==='All'?'auto':fy.value;importBack.classList.add('show')}
+function closeImport(){importBack.classList.remove('show');pendingImport=[];pendingImportImages={};pendingImportStats=null}
+function pickImport(kind){if(window.AndroidApp&&AndroidApp.pickImport){AndroidApp.pickImport(kind)}else alert('File import requires the Android APK')}
+function usePastedData(){let txt=impPaste.value.trim();if(!txt){alert('Paste CSV or tab-separated data first.');return}stageDelimited(txt,'Pasted data')}
+function importFromNative(kind,content,name){
+ try{
+  if(kind==='xlsx'){let table=JSON.parse(content);stageTable(table,name||'Excel file')}
+  else if(kind==='csv'){stageDelimited(content,name||'CSV file')}
+  else if(kind==='json'){stageJson(content,name||'JSON file')}
+ }catch(e){alert('Import could not be read: '+e.message)}
+}
+function parseDelimited(text){
+ let first=(text.split(/\r?\n/).find(x=>x.trim())||''),tabs=(first.match(/\t/g)||[]).length,semis=(first.match(/;/g)||[]).length,commas=(first.match(/,/g)||[]).length,delim=tabs>=commas&&tabs>=semis?'\t':semis>commas?';':',';
+ let rows=[],row=[],cell='',q=false;
+ for(let i=0;i<text.length;i++){let ch=text[i];if(ch==='"'){if(q&&text[i+1]==='"'){cell+='"';i++}else q=!q}else if(ch===delim&&!q){row.push(cell);cell=''}else if((ch==='\n'||ch==='\r')&&!q){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(cell);cell='';if(row.some(x=>String(x).trim()!==''))rows.push(row);row=[]}else cell+=ch}
+ row.push(cell);if(row.some(x=>String(x).trim()!==''))rows.push(row);return rows
+}
+function stageDelimited(text,name){stageTable(parseDelimited(text),name)}
+function normHead(v){return String(v??'').trim().toLowerCase().replace(/[₹$€£:_\-\/().\s]+/g,'')}
+function headerKind(v){
+ let s=normHead(v);
+ if(['date','dt','transactiondate','entrydate','दिनांक'].includes(s))return'date';
+ if(['fy','financialyear','financialyr','year'].includes(s))return'fy';
+ if(['particular','particulars','description','narration','details','detail','entry'].includes(s))return'particular';
+ if(['credit','cr','creditamount','bill','billamount','receivable'].includes(s))return'credit';
+ if(['debit','dr','debitamount','payment','paymentamount','paid'].includes(s))return'debit';
+ if(['balance','bal','closingbalance'].includes(s))return'balance';
+ if(['notes','note','remark','remarks','memo','comment'].includes(s))return'notes';
+ return''
+}
+function parseAmt(v){if(v==null||v==='')return null;let s=String(v).trim().replace(/[₹,$\s]/g,'');if(/^\(.*\)$/.test(s))s='-'+s.slice(1,-1);let n=Number(s);return Number.isFinite(n)?n:null}
+function pad2(n){return String(n).padStart(2,'0')}
+function parseImportDate(v){
+ if(v==null||v==='')return'';let s=String(v).trim();
+ if(/^\d+(\.\d+)?$/.test(s)){let n=Number(s);if(n>20000&&n<90000){let d=new Date(Date.UTC(1899,11,30)+Math.floor(n)*86400000);return d.getUTCFullYear()+'-'+pad2(d.getUTCMonth()+1)+'-'+pad2(d.getUTCDate())}}
+ let m=s.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/);if(m)return m[1]+'-'+pad2(m[2])+'-'+pad2(m[3]);
+ m=s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})$/);if(m){let y=Number(m[3]);if(y<100)y+=2000;return y+'-'+pad2(m[2])+'-'+pad2(m[1])}
+ let d=new Date(s);if(!isNaN(d)){return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate())}return s
+}
+function inferFy(date){
+ if(impFy.value!=='auto')return impFy.value;
+ let m=String(date||'').match(/^(\d{4})-(\d{2})-/);if(!m)return fy.value==='All'?'2026-27':fy.value;
+ let y=Number(m[1]),mo=Number(m[2]);return mo>=4?y+'-'+String(y+1).slice(-2):(y-1)+'-'+String(y).slice(-2)
+}
+function stageTable(table,name){
+ if(!Array.isArray(table)||!table.length){alert('No rows found in '+name);return}
+ let header=-1,map={};
+ for(let r=0;r<Math.min(25,table.length);r++){let score=0,tmp={};(table[r]||[]).forEach((v,i)=>{let k=headerKind(v);if(k&&tmp[k]==null){tmp[k]=i;score++}});if(score>=2&&(tmp.particular!=null||tmp.credit!=null||tmp.debit!=null)){header=r;map=tmp;break}}
+ let start=header>=0?header+1:0;if(header<0)map={date:0,particular:1,credit:2,debit:3,balance:4,notes:5};
+ let rows=[];
+ for(let i=start;i<table.length;i++){let a=table[i]||[],date=parseImportDate(a[map.date]),part=String(a[map.particular]??'').trim(),cr=parseAmt(a[map.credit]),dr=parseAmt(a[map.debit]),notes=map.notes!=null?String(a[map.notes]??'').trim():'',fileFy=map.fy!=null?String(a[map.fy]??'').trim():'';
+  if(!part&&cr==null&&dr==null)continue;if(cr==null&&dr==null)continue;if(cr!=null&&dr!=null&&cr===0)cr=null;if(cr!=null&&dr!=null&&dr===0)dr=null;
+  rows.push({oldId:'',fy:fileFy||inferFy(date),date,particular:part||(cr!=null?'BILL':'PAYMENT'),credit:cr,debit:dr,balance:null,notes,source:'Imported file',sourceRow:null})
+ }
+ stageRows(rows,{},name)
+}
+function stageJson(text,name){
+ let p=JSON.parse(text),rows=[],pics={};
+ if(Array.isArray(p))rows=p;
+ else if(Array.isArray(p.userEntries)){rows=p.userEntries;pics=p.images||{}}
+ else if(Array.isArray(p.transactions))rows=p.transactions.filter(x=>!x.source||x.source==='User entry'||x.source==='Imported file');
+ else if(Array.isArray(p.sourceLedger)){rows=p.sourceLedger;pics=p.images||{}}
+ else throw new Error('No transaction array found in JSON');
+ rows=rows.map(x=>({oldId:x.id||'',fy:x.fy||inferFy(parseImportDate(x.date)),date:parseImportDate(x.date),particular:String(x.particular||x.description||'').trim(),credit:parseAmt(x.credit),debit:parseAmt(x.debit),balance:null,notes:String(x.notes||'').trim(),source:'Imported file',sourceRow:null})).filter(x=>x.particular&&(x.credit!=null||x.debit!=null));
+ stageRows(rows,pics,name)
+}
+function sig(x){return [x.fy||'',x.date||'',String(x.particular||'').trim().toLowerCase(),x.credit==null?'':Number(x.credit).toFixed(2),x.debit==null?'':Number(x.debit).toFixed(2)].join('|')}
+function stageRows(rows,pics,name){
+ let seen=new Set(all().map(sig)),newRows=[],dups=0,cr=0,dr=0;
+ rows.forEach(x=>{let s=sig(x);if(seen.has(s)){dups++;return}seen.add(s);newRows.push(x);cr+=Number(x.credit)||0;dr+=Number(x.debit)||0});
+ pendingImport=newRows;pendingImportImages=pics||{};pendingImportStats={name,total:rows.length,newCount:newRows.length,duplicates:dups,cr,dr};
+ importPreview.innerHTML='<div class="note"><b>'+esc(name)+'</b><br>Preview only — nothing has been changed yet.</div><div class="calcGrid">'+
+  '<div class=calc><small>Rows found</small><b>'+rows.length+'</b></div><div class=calc><small>New entries</small><b>'+newRows.length+'</b></div><div class=calc><small>Duplicates skipped</small><b>'+dups+'</b></div>'+
+  '<div class=calc><small>Credit to import</small><b class=credit>'+money(cr)+'</b></div><div class=calc><small>Debit to import</small><b class=debit>'+money(dr)+'</b></div><div class=calc><small>Net</small><b>'+money(cr-dr)+'</b></div></div>';
+ applyImportBtn.disabled=!newRows.length
+}
+function applyImport(){
+ if(!pendingImport.length)return;let u=user(),m=normalizeMap(),now=Date.now(),added=0;
+ pendingImport.forEach((x,i)=>{let old=x.oldId,id='import-'+now+'-'+i,rec={id,fy:x.fy,date:x.date,particular:x.particular,credit:x.credit,debit:x.debit,balance:null,notes:x.notes,sourceRow:null,source:'Imported file',createdAt:now+i};u.push(rec);let ps=pendingImportImages[old];if(ps){if(typeof ps==='string')ps=[ps];if(Array.isArray(ps)&&ps.length)m[id]=ps.slice(0,8)}added++});
+ saveUser(u);saveImgs(m);closeImport();render();alert('Imported '+added+' new entries successfully. Exact duplicates were skipped.')
+}
+
 function openExport(){exFy.value=fy.value;exType.value=activeType;exSearch.value=q.value;exFrom.value='';exTo.value='';updateExportCalc();exportBack.classList.add('show')}
 function closeExport(){exportBack.classList.remove('show')}
 function exportRows(){let arr=all(),f=exFy.value,typ=exType.value,from=exFrom.value,to=exTo.value,s=exSearch.value.trim().toLowerCase();if(f!=='All')arr=arr.filter(x=>x.fy===f);if(typ==='photos')arr=arr.filter(x=>photoList(x.id).length);else if(typ!=='all')arr=arr.filter(x=>classify(x)===typ);if(from)arr=arr.filter(x=>x.date&&x.date>=from);if(to)arr=arr.filter(x=>x.date&&x.date<=to);if(s)arr=arr.filter(x=>((x.date||'')+' '+(x.particular||'')+' '+(x.notes||'')+' '+(x.credit||'')+' '+(x.debit||'')).toLowerCase().includes(s));return arr}
@@ -129,7 +233,7 @@ function savePdf(){if(window.AndroidApp&&AndroidApp.exportPdf){AndroidApp.export
 function saveJpeg(){if(window.AndroidApp&&AndroidApp.exportJpeg){AndroidApp.exportJpeg(reportPayload(),false);closeExport()}else alert('JPEG export requires Android app')}
 function sharePdf(){if(window.AndroidApp&&AndroidApp.exportPdf){AndroidApp.exportPdf(reportPayload(),true);closeExport()}else alert('PDF sharing requires Android app')}
 function shareJpeg(){if(window.AndroidApp&&AndroidApp.exportJpeg){AndroidApp.exportJpeg(reportPayload(),true);closeExport()}else alert('JPEG sharing requires Android app')}
-function exportBackup(){let payload={exportedAt:new Date().toISOString(),sourceStats:SOURCE_STATS,sourceLedger:SOURCE_LEDGER,userEntries:user(),images:normalizeMap()};let content=JSON.stringify(payload,null,2),name='VKS_Ledger_Backup_'+new Date().toISOString().slice(0,10)+'.json';if(window.AndroidApp&&AndroidApp.saveFile)AndroidApp.saveFile(content,'application/json',name);closeExport()}
+function exportBackup(){let payload={app:'VKS Party Ledger',version:'1.1-pro-import',exportedAt:new Date().toISOString(),sourceStats:SOURCE_STATS,sourceLedger:SOURCE_LEDGER,userEntries:user(),images:normalizeMap()};let content=JSON.stringify(payload,null,2),name='VKS_Ledger_Backup_'+new Date().toISOString().slice(0,10)+'.json';if(window.AndroidApp&&AndroidApp.saveFile)AndroidApp.saveFile(content,'application/json',name);closeExport()}
 function showIssues(){let flags=SOURCE_LEDGER.filter(x=>!x.date);alert(flags.length+' imported transaction(s) have no date in the original workbook. They are preserved without guessing.\n\n'+flags.slice(0,8).map(x=>x.fy+' row '+x.sourceRow+' — '+x.particular+' '+money(x.credit??x.debit)).join('\n'))}
 function openViewer(id,i){let p=photoList(id)[i];if(p)openPreviewSrc(p)}function openPreviewSrc(src){viewerImg.src=src;viewer.classList.add('show')}function closeViewer(){viewer.classList.remove('show');viewerImg.src=''}
 init();

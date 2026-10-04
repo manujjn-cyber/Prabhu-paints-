@@ -87,6 +87,13 @@ label{display:block;margin:10px 0 5px;color:var(--muted);font-size:12px;font-wei
 .toolGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
 .tool{border:1px solid var(--line);background:#fff;border-radius:14px;padding:13px;text-align:left}
 .tool b{display:block;font-size:13px}.tool span{display:block;color:var(--muted);font-size:11px;margin-top:3px;line-height:1.35}
+.exportFilter{background:#f8faf9;border:1px solid #d7e4df;border-radius:14px;padding:12px;margin-top:11px}
+.exportFilterTitle{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:5px}
+.exportSummary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.exportStat{background:#fff;border:1px solid #e1e6e4;border-radius:10px;padding:8px;min-width:0}
+.exportStat small{display:block;color:var(--muted);font-size:9px}
+.exportStat b{display:block;font-size:12px;margin-top:3px;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:520px){.exportSummary{grid-template-columns:1fr 1fr}}
 .photoViewer{position:fixed;inset:0;background:#000e;z-index:60;display:none;align-items:center;justify-content:center;padding:18px}
 .photoViewer.show{display:flex}.photoViewer img{max-width:100%;max-height:88vh;border-radius:12px}.photoClose{position:absolute;right:14px;top:calc(14px + env(safe-area-inset-top));width:42px;height:42px;border-radius:50%;border:0;background:#fff;color:#111;font-size:20px}
 .toast{position:fixed;z-index:80;left:50%;transform:translateX(-50%);bottom:90px;background:#111;color:#fff;border-radius:999px;padding:10px 14px;font-size:12px;display:none;max-width:90%;text-align:center}
@@ -192,7 +199,25 @@ label{display:block;margin:10px 0 5px;color:var(--muted);font-size:12px;font-wei
   <div class="sheet">
     <div class="sheetHandle"></div>
     <h2>Backup & Export</h2>
-    <p>Exports use Android's native save dialog, so you choose exactly where the file is stored.</p>
+    <p>Choose an export timeline below. The calculated totals are included in PDF, JPEG and CSV.</p>
+    <div class="exportFilter">
+      <div class="exportFilterTitle">
+        <b>Export Filter & Calculation</b>
+        <button class="linkBtn" onclick="syncExportFilters()">Use screen filters</button>
+      </div>
+      <div class="grid2">
+        <div><label>Financial year</label><select id="exFy" class="input" onchange="updateExportPreview()"><option>All</option><option>2026-27</option><option>2025-26</option><option>2024-25</option></select></div>
+        <div><label>Transaction type</label><select id="exType" class="input" onchange="updateExportPreview()"><option value="all">All types</option><option value="bill">Bills / Credit</option><option value="payment">Payments / Debit</option><option value="recharge">Recharge</option><option value="photos">With Photo</option></select></div>
+      </div>
+      <div class="grid2">
+        <div><label>From date</label><input id="exFrom" class="input" type="date" onchange="updateExportPreview()"></div>
+        <div><label>To date</label><input id="exTo" class="input" type="date" onchange="updateExportPreview()"></div>
+      </div>
+      <label>Search within export</label>
+      <input id="exSearch" class="input" placeholder="Amount, bill, payment, note…" oninput="updateExportPreview()">
+      <div class="filterFoot"><span class="meta" id="exTimeline">All dates</span><button class="linkBtn" onclick="clearExportFilters()">Clear export filter</button></div>
+      <div class="exportSummary" id="exportSummary"></div>
+    </div>
     <div id="cloudCard" style="background:#eef7f3;border:1px solid #cde5da;border-radius:14px;padding:12px;margin-top:11px">
       <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
         <div><b style="font-size:13px">Automatic Cloud Backup</b><div class="meta" id="cloudStatus">Checking cloud folder…</div></div>
@@ -229,7 +254,7 @@ label{display:block;margin:10px 0 5px;color:var(--muted);font-size:12px;font-wei
 <script src="ledger_data.js"></script>
 <script>
 var KEY='vks_user_entries_v2', OLD_KEY='vks_user_entries_v1', IMG='vks_images_v1';
-var activeType='all', editId=null, entryType='bill', pendingPhoto=null;
+var activeType='all', editId=null, entryType='bill', pendingPhoto=null, exportFilterInitialized=false;
 
 function safeParse(s,fallback){try{return JSON.parse(s)}catch(e){return fallback}}
 function migrate(){
@@ -408,13 +433,13 @@ function deleteEntry(){
   if(!editId || !confirm('Delete this app-added transaction? This cannot be undone.'))return;
   var u=user().filter(function(x){return x.id!==editId});saveUser(u);var m=imgs();delete m[editId];saveImgs(m);closeEntry();render();notify('Transaction deleted')
 }
-function openTools(){toolsBack.classList.add('show');updateCloudStatus()}function closeTools(){toolsBack.classList.remove('show')}
+function openTools(){toolsBack.classList.add('show');updateCloudStatus();if(!exportFilterInitialized){syncExportFilters();exportFilterInitialized=true}else updateExportPreview()}function closeTools(){toolsBack.classList.remove('show')}
 function fileSave(content,mime,name){
   if(window.AndroidApp && AndroidApp.saveFile){AndroidApp.saveFile(content,mime,name);return}
   var blob=new Blob([content],{type:mime}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)
 }
 function backupPayload(){
-  return {app:'VKS Party Ledger',version:'1.4.0',exportedAt:new Date().toISOString(),sourceStats:SOURCE_STATS,userEntries:user(),images:imgs()}
+  return {app:'VKS Party Ledger',version:'1.5.0',exportedAt:new Date().toISOString(),sourceStats:SOURCE_STATS,userEntries:user(),images:imgs()}
 }
 function backupText(){return JSON.stringify(backupPayload(),null,2)}
 function exportBackup(){
@@ -422,13 +447,17 @@ function exportBackup(){
 }
 function csvCell(v){var s=String(v==null?'':v);return '"'+s.replace(/"/g,'""')+'"'}
 function csvText(){
-  var arr=filtered(), rows=[['Date','FY','Particular','Credit','Debit','Balance','Notes','Source']];
+  var arr=exportFiltered(), c=exportCalculation(arr), rows=[
+    ['VKS Party Ledger Export'],['Timeline',c.timeline],['Financial Year',exFy.value],['Type',exportTypeLabel()],
+    ['Transactions',c.count],['Total Credit',c.cr],['Total Debit',c.dr],['Net Amount',c.net],
+    ['Opening Balance',c.opening],['Closing Balance',c.closing],[],
+    ['Date','FY','Particular','Credit','Debit','Balance','Notes','Source']
+  ];
   for(var i=0;i<arr.length;i++){var x=arr[i];rows.push([x.date,x.fy,x.particular,x.credit,x.debit,x.balance,x.notes,x.source])}
   return '\uFEFF'+rows.map(function(r){return r.map(csvCell).join(',')}).join('\r\n')
 }
-function exportCsv(){
-  fileSave(csvText(),'text/csv','VKS_Ledger_'+(fy.value==='All'?'All':fy.value)+'_'+today()+'.csv');closeTools()
-}
+function exportFileTag(){var from=exFrom.value||'Start',to=exTo.value||'End';return (exFy.value==='All'?'AllFY':exFy.value)+'_'+from+'_to_'+to}
+function exportCsv(){fileSave(csvText(),'text/csv','VKS_Ledger_'+exportFileTag()+'.csv');closeTools()}
 function shareNativeFile(content,mime,name,whatsappOnly){
   if(window.AndroidApp&&AndroidApp.shareFile){AndroidApp.shareFile(content,mime,name,!!whatsappOnly);return true}
   return false
@@ -438,7 +467,7 @@ function shareBackupWhatsApp(){
   closeTools()
 }
 function shareCsvWhatsApp(){
-  if(!shareNativeFile(csvText(),'text/csv','VKS_Ledger_'+(fy.value==='All'?'All':fy.value)+'_'+today()+'.csv',true))notify('WhatsApp file sharing needs the Android APK');
+  if(!shareNativeFile(csvText(),'text/csv','VKS_Ledger_'+exportFileTag()+'.csv',true))notify('WhatsApp file sharing needs the Android APK');
   closeTools()
 }
 function restoreBackup(){
@@ -451,17 +480,35 @@ function restoreBackupFromNative(text){
   if(!confirm('Restore '+p.userEntries.length+' app-added transaction(s)? Current app-added data will be replaced.'))return;
   saveUser(p.userEntries);if(p.images && typeof p.images==='object')saveImgs(p.images);render();notify('Backup restored successfully')
 }
+function exportTypeLabel(){var map={all:'All transaction types',bill:'Bills / Credit',payment:'Payments / Debit',recharge:'Recharge',photos:'With Photo'};return map[exType.value]||exType.value}
+function syncExportFilters(){exFy.value=fy.value;exType.value=activeType;exFrom.value=fromDate.value;exTo.value=toDate.value;exSearch.value=q.value;updateExportPreview()}
+function clearExportFilters(){exFy.value='All';exType.value='all';exFrom.value='';exTo.value='';exSearch.value='';updateExportPreview()}
+function exportFiltered(){
+  var arr=allWithBalances(),f=exFy.value,typ=exType.value,from=exFrom.value,to=exTo.value,s=exSearch.value.trim().toLowerCase(),im=imgs();
+  if(f!=='All')arr=arr.filter(function(x){return x.fy===f});
+  if(typ==='photos')arr=arr.filter(function(x){return !!im[x.id]});else if(typ!=='all')arr=arr.filter(function(x){return classify(x)===typ});
+  if(from)arr=arr.filter(function(x){return x.date&&x.date>=from});if(to)arr=arr.filter(function(x){return x.date&&x.date<=to});
+  if(s)arr=arr.filter(function(x){return ((x.date||'')+' '+(x.particular||'')+' '+(x.notes||'')+' '+(x.credit||'')+' '+(x.debit||'')+' '+(x.balance||'')).toLowerCase().indexOf(s)>=0});
+  return arr
+}
+function exportCalculation(arr){
+  var t=totals(arr),first=arr.length?arr[0]:null,last=arr.length?arr[arr.length-1]:null;
+  var opening=first?Number(first.balance||0)-(Number(first.credit)||0)+(Number(first.debit)||0):0,closing=last?Number(last.balance||0):0;
+  var dated=arr.filter(function(x){return !!x.date}),actualFrom=exFrom.value||(dated.length?dated[0].date:''),actualTo=exTo.value||(dated.length?dated[dated.length-1].date:'');
+  return {count:arr.length,cr:t.cr,dr:t.dr,net:t.bal,opening:opening,closing:closing,timeline:(actualFrom||'Start')+' to '+(actualTo||'End')}
+}
+function updateExportPreview(){
+  if(typeof exFy==='undefined')return;var arr=exportFiltered(),c=exportCalculation(arr);exTimeline.textContent=c.timeline+' • '+exportTypeLabel();
+  exportSummary.innerHTML='<div class="exportStat"><small>Transactions</small><b>'+c.count+'</b></div>'+
+    '<div class="exportStat"><small>Total Credit</small><b class="credit">'+money(c.cr)+'</b></div>'+
+    '<div class="exportStat"><small>Total Debit</small><b class="debit">'+money(c.dr)+'</b></div>'+
+    '<div class="exportStat"><small>Net Amount</small><b>'+money(c.net)+'</b></div>'+
+    '<div class="exportStat"><small>Opening Balance</small><b>'+money(c.opening)+'</b></div>'+
+    '<div class="exportStat"><small>Closing Balance</small><b>'+money(c.closing)+'</b></div>'
+}
 function reportPayload(){
-  var arr=filtered(),t=totals(arr),label=fy.value==='All'?'All years':fy.value;
-  return JSON.stringify({
-    fy:label,
-    filterLabel:activeType==='all'?'All transaction types':activeType,
-    count:arr.length,
-    credit:money(t.cr),
-    debit:money(t.dr),
-    currentBalance:money(fy.value==='All'?currentFyBalance('2026-27'):currentFyBalance(fy.value)),
-    rows:arr.map(function(x){return {date:x.date||'',particular:x.particular||'',credit:x.credit,debit:x.debit,balance:x.balance,notes:x.notes||''}})
-  })
+  var arr=exportFiltered(),c=exportCalculation(arr),label=exFy.value==='All'?'All years':exFy.value;
+  return JSON.stringify({fy:label,filterLabel:exportTypeLabel(),timeline:c.timeline,count:c.count,credit:money(c.cr),debit:money(c.dr),net:money(c.net),openingBalance:money(c.opening),closingBalance:money(c.closing),currentBalance:money(c.closing),rows:arr.map(function(x){return {date:x.date||'',particular:x.particular||'',credit:x.credit,debit:x.debit,balance:x.balance,notes:x.notes||''}})})
 }
 function savePdfNative(){
   if(window.AndroidApp&&AndroidApp.exportPdf){AndroidApp.exportPdf(reportPayload(),false);closeTools()}

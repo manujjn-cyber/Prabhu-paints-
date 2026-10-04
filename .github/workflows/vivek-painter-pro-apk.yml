@@ -1,0 +1,37 @@
+name: Build Vivek Painter Pro APK
+on:
+  push:
+    branches: [main]
+    paths:
+      - "vivek-painter-android/**"
+      - ".github/workflows/vivek-painter-pro-apk.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+      - name: Install Android SDK
+        shell: bash
+        run: |
+          SDKMANAGER="${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="/usr/local/lib/android/sdk/cmdline-tools/12.0/bin/sdkmanager"; fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+      - name: Build APK
+        working-directory: vivek-painter-android
+        run: gradle --no-daemon assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Vivek-Painter-Pro-APK
+          path: vivek-painter-android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14

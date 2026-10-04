@@ -432,8 +432,12 @@ public class MainActivity extends Activity {
             y += 16;
             String fy = root.optString("fy","All");
             c.drawText("Prabhu Paints  •  " + fy + "  •  " + root.optString("filterLabel","Current filter"), M, y, sub);
-            y += 14;
-            c.drawText("Transactions: "+root.optInt("count",rows.length())+"   Credit: "+root.optString("credit","")+"   Debit: "+root.optString("debit","")+"   Current balance: "+root.optString("currentBalance",""), M, y, sub);
+            y += 13;
+            c.drawText("Timeline: " + root.optString("timeline","All dates"), M, y, sub);
+            y += 13;
+            c.drawText("Transactions: "+root.optInt("count",rows.length())+"   Credit: "+root.optString("credit","")+"   Debit: "+root.optString("debit","")+"   Net: "+root.optString("net",""), M, y, sub);
+            y += 13;
+            c.drawText("Opening: "+root.optString("openingBalance","")+"   Closing: "+root.optString("closingBalance",""), M, y, sub);
             y += 18;
 
             Paint headerBg = new Paint(); headerBg.setColor(Color.rgb(23,60,53));
@@ -472,7 +476,7 @@ public class MainActivity extends Activity {
         JSONArray rows = root.optJSONArray("rows");
         if (rows == null) rows = new JSONArray();
 
-        final int W = 1080, margin = 42, headerH = 245, rowH = 40;
+        final int W = 1080, margin = 42, headerH = 330, rowH = 40;
         int h = headerH + Math.max(1, rows.length()) * rowH + 80;
         h = Math.min(h, 15000);
 
@@ -481,17 +485,19 @@ public class MainActivity extends Activity {
         c.drawColor(Color.WHITE);
 
         Paint brand = new Paint(); brand.setColor(Color.rgb(23,60,53));
-        c.drawRect(0,0,W,170,brand);
+        c.drawRect(0,0,W,245,brand);
         Paint title = paint(42,Color.WHITE,true);
         Paint sub = paint(22,Color.rgb(220,235,230),false);
         c.drawText("VKS Party Ledger",margin,62,title);
-        c.drawText("Prabhu Paints  •  "+root.optString("fy","All"),margin,102,sub);
-        c.drawText("Transactions "+root.optInt("count",rows.length())+"  |  Credit "+root.optString("credit","")+"  |  Debit "+root.optString("debit",""),margin,138,sub);
+        c.drawText("Prabhu Paints  •  "+root.optString("fy","All")+"  •  "+root.optString("filterLabel","All types"),margin,102,sub);
+        c.drawText("Timeline: "+root.optString("timeline","All dates"),margin,138,sub);
+        c.drawText("Transactions "+root.optInt("count",rows.length())+"  |  Credit "+root.optString("credit","")+"  |  Debit "+root.optString("debit",""),margin,174,sub);
+        c.drawText("Net "+root.optString("net","")+"  |  Opening "+root.optString("openingBalance","")+"  |  Closing "+root.optString("closingBalance",""),margin,210,sub);
 
         Paint bal = paint(28,Color.rgb(23,60,53),true);
-        c.drawText("Current balance: "+root.optString("currentBalance",""),margin,210,bal);
+        c.drawText("Filtered closing balance: "+root.optString("closingBalance",""),margin,285,bal);
 
-        int y=250;
+        int y=330;
         Paint headBg=new Paint();headBg.setColor(Color.rgb(238,242,241));c.drawRect(margin,y-28,W-margin,y+12,headBg);
         Paint head=paint(18,Color.rgb(23,60,53),true), cell=paint(17,Color.rgb(30,35,40),false), num=paint(17,Color.rgb(30,35,40),true);
         int xDate=margin, xPart=195, xCr=640, xDr=775, xBal=900;

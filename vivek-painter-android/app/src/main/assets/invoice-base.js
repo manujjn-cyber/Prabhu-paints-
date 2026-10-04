@@ -1,0 +1,1 @@
+function blankInvoice(){return{id:"i_"+Date.now(),no:iNo(),date:today(),client:"",mobile:"",address:"",items:[{desc:"Painting work",qty:1,unit:"Job",rate:"",amount:""}],discount:0,gst:store.settings.gstDefault?18:0,paid:0,paymentMode:"Cash",notes:"Thank you for your business.",subtotal:0,tax:0,total:0,balance:0,updatedAt:new Date().toISOString()}}

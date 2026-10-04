@@ -252,13 +252,29 @@ public class MainActivity extends Activity {
         }
         public void onUpgrade(SQLiteDatabase d,int old,int now){}
         void importCsv(SQLiteDatabase d){
-            try(BufferedReader br=new BufferedReader(new InputStreamReader(ctx.getAssets().open("ledger.csv"),StandardCharsets.UTF_8))){
-                String line=br.readLine();d.beginTransaction();
-                while((line=br.readLine())!=null){
-                    List<String> x=parse(line);if(x.size()<11)continue;
-                    ContentValues v=new ContentValues();v.put("id",x.get(0));v.put("fy",x.get(1));v.put("date",x.get(2));v.put("particular",x.get(3));
-                    putNum(v,"credit",x.get(4));putNum(v,"debit",x.get(5));v.put("category",x.get(6));putNum(v,"balance",x.get(7));v.put("notes",x.get(8));v.put("flag",x.get(9));v.put("source",1);v.put("source_row",toInt(x.get(10)));v.put("created_at",0);d.insert("tx",null,v);
-                }d.setTransactionSuccessful();d.endTransaction();
+            try{
+                String raw;
+                try(InputStream in=ctx.getAssets().open("ledger_data.js")){
+                    ByteArrayOutputStream out=new ByteArrayOutputStream();byte[] buf=new byte[8192];int n;
+                    while((n=in.read(buf))>0)out.write(buf,0,n);raw=out.toString("UTF-8");
+                }
+                int start=raw.indexOf('['), end=raw.indexOf("].map");
+                if(start<0||end<start)throw new Exception("Seed ledger data missing");
+                JSONArray data=new JSONArray(raw.substring(start,end+1));
+                d.beginTransaction();
+                for(int i=0;i<data.length();i++){
+                    JSONArray x=data.getJSONArray(i);
+                    String fy=x.optString(0,""),date=x.optString(1,""),part=x.optString(2,"");
+                    int sourceRow=x.optInt(7,0);
+                    ContentValues v=new ContentValues();
+                    v.put("id",fy+"-"+sourceRow);v.put("fy",fy);v.put("date",date);v.put("particular",part);
+                    if(x.isNull(3))v.putNull("credit");else v.put("credit",x.getDouble(3));
+                    if(x.isNull(4))v.putNull("debit");else v.put("debit",x.getDouble(4));
+                    if(x.isNull(5))v.putNull("balance");else v.put("balance",x.getDouble(5));
+                    v.put("notes",x.optString(6,""));v.put("source",1);v.put("source_row",sourceRow);v.put("created_at",0);
+                    d.insert("tx",null,v);
+                }
+                d.setTransactionSuccessful();d.endTransaction();
             }catch(Exception e){throw new RuntimeException(e);}
         }
         static void putNum(ContentValues v,String k,String s){if(s==null||s.isEmpty())v.putNull(k);else v.put(k,Double.parseDouble(s));}

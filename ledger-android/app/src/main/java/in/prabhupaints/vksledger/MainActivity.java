@@ -1,7 +1,7 @@
 package in.prabhupaints.vksledger;
 
 import android.app.Activity;
-import android.app.PrintManager;
+import android.print.PrintManager;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.Context;

@@ -13,6 +13,8 @@ import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.database.Cursor;
+import android.provider.OpenableColumns;
 import android.provider.MediaStore;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
@@ -27,7 +29,13 @@ import androidx.core.content.FileProvider;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -36,6 +44,16 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 public class MainActivity extends Activity {
     private WebView web;
@@ -45,9 +63,11 @@ public class MainActivity extends Activity {
     private String pendingSaveContent;
     private String pendingSaveMime;
     private byte[] pendingBinary;
+    private String pendingImportKind;
 
     private static final int FILE_REQ = 9001;
     private static final int SAVE_REQ = 9002;
+    private static final int IMPORT_REQ = 9003;
 
     @Override public void onCreate(Bundle b) {
         super.onCreate(b);
@@ -112,6 +132,28 @@ public class MainActivity extends Activity {
                 pendingSaveContent = content == null ? "" : content;
                 pendingSaveMime = (mime == null || mime.isEmpty()) ? "application/octet-stream" : mime;
                 launchSaveDialog(pendingSaveMime, fileName == null ? "VKS_Ledger_Export.txt" : fileName);
+            });
+        }
+
+
+        @JavascriptInterface public void pickImport(String kind) {
+            runOnUiThread(() -> {
+                pendingImportKind = kind == null ? "csv" : kind;
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                if ("xlsx".equals(pendingImportKind)) {
+                    intent.setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                } else if ("json".equals(pendingImportKind)) {
+                    intent.setType("application/json");
+                } else {
+                    intent.setType("*/*");
+                    intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"text/csv","text/tab-separated-values","text/plain","application/csv"});
+                }
+                try {
+                    startActivityForResult(intent, IMPORT_REQ);
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Could not open import file picker", Toast.LENGTH_LONG).show();
+                }
             });
         }
 
@@ -352,6 +394,189 @@ public class MainActivity extends Activity {
         return out.toByteArray();
     }
 
+
+    private String getDisplayName(Uri uri) {
+        String name = "Selected file";
+        try (Cursor c = getContentResolver().query(uri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
+            if (c != null && c.moveToFirst()) {
+                int i = c.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (i >= 0) name = c.getString(i);
+            }
+        } catch (Exception ignored) {}
+        return name == null ? "Selected file" : name;
+    }
+
+    private byte[] readAllBytes(InputStream in) throws Exception {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte[] buf = new byte[8192];
+        int n;
+        while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+        return out.toByteArray();
+    }
+
+    private String readText(Uri uri) throws Exception {
+        try (InputStream in = getContentResolver().openInputStream(uri)) {
+            if (in == null) throw new Exception("Could not open file");
+            return new String(readAllBytes(in), StandardCharsets.UTF_8);
+        }
+    }
+
+    private JSONObject parseXlsx(Uri uri) throws Exception {
+        Map<String, byte[]> entries = new HashMap<>();
+        try (InputStream in = getContentResolver().openInputStream(uri);
+             ZipInputStream zip = new ZipInputStream(in)) {
+            if (in == null) throw new Exception("Could not open Excel file");
+            ZipEntry e;
+            while ((e = zip.getNextEntry()) != null) {
+                if (!e.isDirectory()) entries.put(e.getName(), readAllBytes(zip));
+                zip.closeEntry();
+            }
+        }
+
+        if (entries.isEmpty()) throw new Exception("Excel workbook is empty or invalid");
+
+        List<String> shared = new ArrayList<>();
+        byte[] sharedXml = entries.get("xl/sharedStrings.xml");
+        if (sharedXml != null) {
+            Document doc = parseXml(sharedXml);
+            NodeList sis = doc.getElementsByTagName("si");
+            for (int i = 0; i < sis.getLength(); i++) {
+                Element si = (Element) sis.item(i);
+                NodeList ts = si.getElementsByTagName("t");
+                StringBuilder s = new StringBuilder();
+                for (int k = 0; k < ts.getLength(); k++) s.append(ts.item(k).getTextContent());
+                shared.add(s.toString());
+            }
+        }
+
+        List<String> sheetNames = new ArrayList<>();
+        byte[] wb = entries.get("xl/workbook.xml");
+        if (wb != null) {
+            Document doc = parseXml(wb);
+            NodeList sheets = doc.getElementsByTagName("sheet");
+            for (int i = 0; i < sheets.getLength(); i++) {
+                Element el = (Element) sheets.item(i);
+                sheetNames.add(el.getAttribute("name"));
+            }
+        }
+
+        List<String> sheetPaths = new ArrayList<>();
+        for (String k : entries.keySet()) {
+            if (k.matches("xl/worksheets/sheet\\d+\\.xml")) sheetPaths.add(k);
+        }
+        Collections.sort(sheetPaths, Comparator.comparingInt(this::sheetNumber));
+
+        JSONArray outSheets = new JSONArray();
+        for (int s = 0; s < sheetPaths.size(); s++) {
+            byte[] sx = entries.get(sheetPaths.get(s));
+            if (sx == null) continue;
+            JSONArray rows = parseSheet(sx, shared);
+            JSONObject sheet = new JSONObject();
+            String name = s < sheetNames.size() && sheetNames.get(s) != null && !sheetNames.get(s).isEmpty()
+                    ? sheetNames.get(s) : "Sheet " + (s + 1);
+            sheet.put("name", name);
+            sheet.put("rows", rows);
+            outSheets.put(sheet);
+        }
+
+        if (outSheets.length() == 0) throw new Exception("No worksheets found in Excel file");
+        JSONObject result = new JSONObject();
+        result.put("sheets", outSheets);
+        return result;
+    }
+
+    private int sheetNumber(String path) {
+        try {
+            String n = path.replaceAll("^.*sheet", "").replaceAll("\\.xml$", "");
+            return Integer.parseInt(n);
+        } catch (Exception e) {
+            return Integer.MAX_VALUE;
+        }
+    }
+
+    private Document parseXml(byte[] bytes) throws Exception {
+        DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
+        f.setNamespaceAware(false);
+        try { f.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); } catch (Exception ignored) {}
+        return f.newDocumentBuilder().parse(new ByteArrayInputStream(bytes));
+    }
+
+    private JSONArray parseSheet(byte[] xml, List<String> shared) throws Exception {
+        Document doc = parseXml(xml);
+        NodeList rowNodes = doc.getElementsByTagName("row");
+        JSONArray out = new JSONArray();
+
+        for (int ri = 0; ri < rowNodes.getLength() && ri < 20000; ri++) {
+            Element row = (Element) rowNodes.item(ri);
+            NodeList cells = row.getElementsByTagName("c");
+            Map<Integer,String> values = new HashMap<>();
+            int maxCol = -1;
+
+            for (int ci = 0; ci < cells.getLength(); ci++) {
+                Element cell = (Element) cells.item(ci);
+                String ref = cell.getAttribute("r");
+                int col = columnIndex(ref);
+                if (col < 0 || col > 80) continue;
+                maxCol = Math.max(maxCol, col);
+
+                String type = cell.getAttribute("t");
+                String value = "";
+                if ("inlineStr".equals(type)) {
+                    NodeList ts = cell.getElementsByTagName("t");
+                    StringBuilder sb = new StringBuilder();
+                    for (int k = 0; k < ts.getLength(); k++) sb.append(ts.item(k).getTextContent());
+                    value = sb.toString();
+                } else {
+                    NodeList vs = cell.getElementsByTagName("v");
+                    if (vs.getLength() > 0) value = vs.item(0).getTextContent();
+                    if ("s".equals(type) && !value.isEmpty()) {
+                        try {
+                            int idx = Integer.parseInt(value);
+                            if (idx >= 0 && idx < shared.size()) value = shared.get(idx);
+                        } catch (Exception ignored) {}
+                    } else if ("b".equals(type)) {
+                        value = "1".equals(value) ? "TRUE" : "FALSE";
+                    }
+                }
+                values.put(col, value == null ? "" : value);
+            }
+
+            if (maxCol < 0) continue;
+            JSONArray arr = new JSONArray();
+            boolean any = false;
+            for (int c = 0; c <= maxCol; c++) {
+                String v = values.get(c);
+                if (v == null) v = "";
+                if (!v.trim().isEmpty()) any = true;
+                arr.put(v);
+            }
+            if (any) out.put(arr);
+        }
+        return out;
+    }
+
+    private int columnIndex(String ref) {
+        if (ref == null || ref.isEmpty()) return -1;
+        int n = 0, count = 0;
+        for (int i = 0; i < ref.length(); i++) {
+            char ch = ref.charAt(i);
+            if (ch >= 'A' && ch <= 'Z') {
+                n = n * 26 + (ch - 'A' + 1);
+                count++;
+            } else if (ch >= 'a' && ch <= 'z') {
+                n = n * 26 + (ch - 'a' + 1);
+                count++;
+            } else break;
+        }
+        return count == 0 ? -1 : n - 1;
+    }
+
+    private void deliverImport(String kind, String content, String name) {
+        String js = "importFromNative(" + JSONObject.quote(kind) + "," +
+                JSONObject.quote(content) + "," + JSONObject.quote(name) + ")";
+        web.evaluateJavascript(js, null);
+    }
+
     @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -371,6 +596,32 @@ public class MainActivity extends Activity {
             chooser.onReceiveValue(out);
             chooser = null;
             cameraUri = null;
+            return;
+        }
+
+
+        if (requestCode == IMPORT_REQ) {
+            if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                Uri uri = data.getData();
+                String kind = pendingImportKind == null ? "csv" : pendingImportKind;
+                String name = getDisplayName(uri);
+                new Thread(() -> {
+                    try {
+                        String content;
+                        if ("xlsx".equals(kind)) {
+                            content = parseXlsx(uri).toString();
+                        } else {
+                            content = readText(uri);
+                        }
+                        String finalContent = content;
+                        runOnUiThread(() -> deliverImport(kind, finalContent, name));
+                    } catch (Exception e) {
+                        runOnUiThread(() -> Toast.makeText(MainActivity.this,
+                                "Import failed: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                    }
+                }).start();
+            }
+            pendingImportKind = null;
             return;
         }
 

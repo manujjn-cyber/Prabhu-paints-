@@ -2,6 +2,7 @@ plugins { id 'com.android.application' }
 android {
   namespace 'in.vivekpainter.pro'
   compileSdk 35
+
   defaultConfig {
     applicationId 'in.vivekpainter.pro'
     minSdk 24
@@ -9,7 +10,22 @@ android {
     versionCode 3
     versionName '1.2.0'
   }
-  buildTypes { release { minifyEnabled false } debug { applicationIdSuffix ''; versionNameSuffix '-debug' } }
-  compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+    }
+    debug {
+      applicationIdSuffix ''
+      versionNameSuffix '-debug'
+    }
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
 }
-dependencies { implementation 'androidx.core:core:1.13.1' }
+dependencies {
+  implementation 'androidx.core:core:1.13.1'
+}

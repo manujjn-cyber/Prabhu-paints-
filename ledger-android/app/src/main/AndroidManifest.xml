@@ -3,7 +3,7 @@
   <package android:name="com.whatsapp"/>
   <package android:name="com.whatsapp.w4b"/>
  </queries>
- <application android:theme="@android:style/Theme.Material.Light.NoActionBar" android:label="Prabhu Paints Ledger" android:allowBackup="true" android:usesCleartextTraffic="false">
+ <application android:theme="@android:style/Theme.Material.Light.NoActionBar" android:label="Prabhu Paints Ledger" android:icon="@drawable/ic_prabhu_paints" android:roundIcon="@drawable/ic_prabhu_paints" android:allowBackup="true" android:usesCleartextTraffic="false">
   <activity android:name=".MainActivity" android:screenOrientation="portrait" android:exported="true">
    <intent-filter>
     <action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/>

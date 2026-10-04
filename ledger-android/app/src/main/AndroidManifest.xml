@@ -4,14 +4,11 @@
   <package android:name="com.whatsapp.w4b"/>
  </queries>
  <application
-   android:theme="@android:style/Theme.Material.Light.NoActionBar"
+   android:theme="@style/AppTheme"
    android:label="VKS Party Ledger"
    android:allowBackup="true"
    android:usesCleartextTraffic="false">
-  <activity
-    android:name=".MainActivity"
-    android:screenOrientation="portrait"
-    android:exported="true">
+  <activity android:name=".MainActivity" android:screenOrientation="portrait" android:exported="true">
    <intent-filter>
     <action android:name="android.intent.action.MAIN"/>
     <category android:name="android.intent.category.LAUNCHER"/>
@@ -22,9 +19,7 @@
     android:authorities="${applicationId}.fileprovider"
     android:exported="false"
     android:grantUriPermissions="true">
-   <meta-data
-     android:name="android.support.FILE_PROVIDER_PATHS"
-     android:resource="@xml/file_paths"/>
+   <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths"/>
   </provider>
  </application>
 </manifest>

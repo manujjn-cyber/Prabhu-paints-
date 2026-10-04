@@ -146,7 +146,7 @@ function pickImport(kind){if(window.AndroidApp&&AndroidApp.pickImport){AndroidAp
 function usePastedData(){let txt=impPaste.value.trim();if(!txt){alert('Paste CSV or tab-separated data first.');return}stageDelimited(txt,'Pasted data')}
 function importFromNative(kind,content,name){
  try{
-  if(kind==='xlsx'){let table=JSON.parse(content);stageTable(table,name||'Excel file')}
+  if(kind==='xlsx'){let book=JSON.parse(content);if(book&&Array.isArray(book.sheets))stageWorkbook(book,name||'Excel workbook');else stageTable(book,name||'Excel file')}
   else if(kind==='csv'){stageDelimited(content,name||'CSV file')}
   else if(kind==='json'){stageJson(content,name||'JSON file')}
  }catch(e){alert('Import could not be read: '+e.message)}
@@ -184,18 +184,23 @@ function inferFy(date){
  let m=String(date||'').match(/^(\d{4})-(\d{2})-/);if(!m)return fy.value==='All'?'2026-27':fy.value;
  let y=Number(m[1]),mo=Number(m[2]);return mo>=4?y+'-'+String(y+1).slice(-2):(y-1)+'-'+String(y).slice(-2)
 }
-function stageTable(table,name){
- if(!Array.isArray(table)||!table.length){alert('No rows found in '+name);return}
+function stageWorkbook(book,name){
+ let rows=[];(book.sheets||[]).forEach(sh=>{let sheetFy=/^\d{4}-\d{2}$/.test(String(sh.name||'').trim())?String(sh.name).trim():'';rows=rows.concat(tableToImportRows(sh.rows||[],sheetFy))});
+ if(!rows.length){alert('No importable rows found in '+name);return}stageRows(rows,{},name+' • '+book.sheets.length+' sheet(s)')
+}
+function tableToImportRows(table,forcedFy){
+ if(!Array.isArray(table)||!table.length)return[];
  let header=-1,map={};
  for(let r=0;r<Math.min(25,table.length);r++){let score=0,tmp={};(table[r]||[]).forEach((v,i)=>{let k=headerKind(v);if(k&&tmp[k]==null){tmp[k]=i;score++}});if(score>=2&&(tmp.particular!=null||tmp.credit!=null||tmp.debit!=null)){header=r;map=tmp;break}}
  let start=header>=0?header+1:0;if(header<0)map={date:0,particular:1,credit:2,debit:3,balance:4,notes:5};
  let rows=[];
  for(let i=start;i<table.length;i++){let a=table[i]||[],date=parseImportDate(a[map.date]),part=String(a[map.particular]??'').trim(),cr=parseAmt(a[map.credit]),dr=parseAmt(a[map.debit]),notes=map.notes!=null?String(a[map.notes]??'').trim():'',fileFy=map.fy!=null?String(a[map.fy]??'').trim():'';
   if(!part&&cr==null&&dr==null)continue;if(cr==null&&dr==null)continue;if(cr!=null&&dr!=null&&cr===0)cr=null;if(cr!=null&&dr!=null&&dr===0)dr=null;
-  rows.push({oldId:'',fy:fileFy||inferFy(date),date,particular:part||(cr!=null?'BILL':'PAYMENT'),credit:cr,debit:dr,balance:null,notes,source:'Imported file',sourceRow:null})
+  rows.push({oldId:'',fy:fileFy||forcedFy||inferFy(date),date,particular:part||(cr!=null?'BILL':'PAYMENT'),credit:cr,debit:dr,balance:null,notes,source:'Imported file',sourceRow:null})
  }
- stageRows(rows,{},name)
+ return rows
 }
+function stageTable(table,name){let rows=tableToImportRows(table,'');if(!rows.length){alert('No importable rows found in '+name);return}stageRows(rows,{},name)}
 function stageJson(text,name){
  let p=JSON.parse(text),rows=[],pics={};
  if(Array.isArray(p))rows=p;

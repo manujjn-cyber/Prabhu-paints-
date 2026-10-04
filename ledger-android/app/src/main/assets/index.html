@@ -193,12 +193,26 @@ label{display:block;margin:10px 0 5px;color:var(--muted);font-size:12px;font-wei
     <div class="sheetHandle"></div>
     <h2>Backup & Export</h2>
     <p>Exports use Android's native save dialog, so you choose exactly where the file is stored.</p>
+    <div id="cloudCard" style="background:#eef7f3;border:1px solid #cde5da;border-radius:14px;padding:12px;margin-top:11px">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center">
+        <div><b style="font-size:13px">Automatic Cloud Backup</b><div class="meta" id="cloudStatus">Checking cloud folder…</div></div>
+        <span class="badge" id="cloudBadge">OFF</span>
+      </div>
+      <div class="actions" style="margin-top:9px">
+        <button class="btn secondary" onclick="connectCloud()">Choose Cloud Folder</button>
+        <button class="btn primary" onclick="cloudBackupNow()">Backup Now</button>
+      </div>
+      <div class="meta" style="margin-top:7px">Choose Google Drive, OneDrive, Dropbox, or another Android cloud provider. After setup, app-added entries and bill photos are backed up automatically.</div>
+    </div>
     <div class="toolGrid">
-      <button class="tool" onclick="exportBackup()"><b>Full JSON Backup</b><span>User entries + attached pictures + source reference.</span></button>
-      <button class="tool" onclick="exportCsv()"><b>Export CSV</b><span>Current filtered ledger for Excel or Sheets.</span></button>
+      <button class="tool" onclick="exportBackup()"><b>Save JSON Backup</b><span>Save a complete local backup with pictures.</span></button>
+      <button class="tool" onclick="exportCsv()"><b>Save CSV</b><span>Current filtered ledger for Excel or Sheets.</span></button>
+      <button class="tool" onclick="shareBackupWhatsApp()"><b>WhatsApp Backup</b><span>Send the JSON backup as a WhatsApp file attachment.</span></button>
+      <button class="tool" onclick="shareCsvWhatsApp()"><b>WhatsApp CSV</b><span>Send the filtered ledger as a CSV attachment.</span></button>
       <button class="tool" onclick="restoreBackup()"><b>Restore Backup</b><span>Restore user-added entries and pictures from JSON.</span></button>
       <button class="tool" onclick="printLedger()"><b>Print / Save PDF</b><span>Android print dialog; choose “Save as PDF”.</span></button>
-      <button class="tool" onclick="shareSummary()"><b>Share Summary</b><span>Share current totals through WhatsApp or other apps.</span></button>
+      <button class="tool" onclick="shareSummaryWhatsApp()"><b>WhatsApp Summary</b><span>Send current ledger totals directly to WhatsApp.</span></button>
+      <button class="tool" onclick="shareSummary()"><b>Android Share</b><span>Share current totals through any supported app.</span></button>
       <button class="tool" onclick="showIssues()"><b>Data Flags</b><span>Review blank or questionable source dates.</span></button>
     </div>
     <button class="btn secondary" style="width:100%;margin-top:12px" onclick="closeTools()">Close</button>
@@ -223,9 +237,9 @@ function migrate(){
   }
 }
 function user(){return safeParse(localStorage.getItem(KEY),[])}
-function saveUser(x){localStorage.setItem(KEY,JSON.stringify(x))}
+function saveUser(x){localStorage.setItem(KEY,JSON.stringify(x));scheduleCloudBackup()}
 function imgs(){return safeParse(localStorage.getItem(IMG),{})}
-function saveImgs(x){try{localStorage.setItem(IMG,JSON.stringify(x));return true}catch(e){notify('Photo storage is full. Export a backup, then remove older pictures.');return false}}
+function saveImgs(x){try{localStorage.setItem(IMG,JSON.stringify(x));scheduleCloudBackup();return true}catch(e){notify('Photo storage is full. Export a backup, then remove older pictures.');return false}}
 function money(n){return n==null?'—':'₹'+Number(n).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2})}
 function today(){return new Date().toISOString().slice(0,10)}
 function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -284,7 +298,7 @@ function init(){
   fy.onchange=render;q.oninput=render;fromDate.onchange=render;toDate.onchange=render;mphoto.onchange=readPhoto;
   document.querySelectorAll('.chip').forEach(function(b){b.onclick=function(){activeType=b.getAttribute('data-type');document.querySelectorAll('.chip').forEach(function(x){x.classList.remove('active')});b.classList.add('active');render()}});
   backupInput.onchange=function(e){var file=e.target.files[0];if(!file)return;var r=new FileReader();r.onload=function(){restoreBackupFromNative(r.result)};r.readAsText(file)};
-  render();
+  render();updateCloudStatus();
 }
 function render(){
   var arr=filtered(), t=totals(arr), selected=fy.value, current= selected==='All' ? currentFyBalance('2026-27') : currentFyBalance(selected);
@@ -391,21 +405,38 @@ function deleteEntry(){
   if(!editId || !confirm('Delete this app-added transaction? This cannot be undone.'))return;
   var u=user().filter(function(x){return x.id!==editId});saveUser(u);var m=imgs();delete m[editId];saveImgs(m);closeEntry();render();notify('Transaction deleted')
 }
-function openTools(){toolsBack.classList.add('show')}function closeTools(){toolsBack.classList.remove('show')}
+function openTools(){toolsBack.classList.add('show');updateCloudStatus()}function closeTools(){toolsBack.classList.remove('show')}
 function fileSave(content,mime,name){
   if(window.AndroidApp && AndroidApp.saveFile){AndroidApp.saveFile(content,mime,name);return}
   var blob=new Blob([content],{type:mime}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)
 }
+function backupPayload(){
+  return {app:'VKS Party Ledger',version:'1.3.0',exportedAt:new Date().toISOString(),sourceStats:SOURCE_STATS,userEntries:user(),images:imgs()}
+}
+function backupText(){return JSON.stringify(backupPayload(),null,2)}
 function exportBackup(){
-  var payload={app:'VKS Party Ledger',version:'1.2.0',exportedAt:new Date().toISOString(),sourceStats:SOURCE_STATS,userEntries:user(),images:imgs()};
-  fileSave(JSON.stringify(payload,null,2),'application/json','VKS_Ledger_Backup_'+today()+'.json');closeTools()
+  fileSave(backupText(),'application/json','VKS_Ledger_Backup_'+today()+'.json');closeTools()
 }
 function csvCell(v){var s=String(v==null?'':v);return '"'+s.replace(/"/g,'""')+'"'}
-function exportCsv(){
+function csvText(){
   var arr=filtered(), rows=[['Date','FY','Particular','Credit','Debit','Balance','Notes','Source']];
   for(var i=0;i<arr.length;i++){var x=arr[i];rows.push([x.date,x.fy,x.particular,x.credit,x.debit,x.balance,x.notes,x.source])}
-  var csv='\uFEFF'+rows.map(function(r){return r.map(csvCell).join(',')}).join('\r\n');
-  fileSave(csv,'text/csv','VKS_Ledger_'+(fy.value==='All'?'All':fy.value)+'_'+today()+'.csv');closeTools()
+  return '\uFEFF'+rows.map(function(r){return r.map(csvCell).join(',')}).join('\r\n')
+}
+function exportCsv(){
+  fileSave(csvText(),'text/csv','VKS_Ledger_'+(fy.value==='All'?'All':fy.value)+'_'+today()+'.csv');closeTools()
+}
+function shareNativeFile(content,mime,name,whatsappOnly){
+  if(window.AndroidApp&&AndroidApp.shareFile){AndroidApp.shareFile(content,mime,name,!!whatsappOnly);return true}
+  return false
+}
+function shareBackupWhatsApp(){
+  if(!shareNativeFile(backupText(),'application/json','VKS_Ledger_Backup_'+today()+'.json',true))notify('WhatsApp file sharing needs the Android APK');
+  closeTools()
+}
+function shareCsvWhatsApp(){
+  if(!shareNativeFile(csvText(),'text/csv','VKS_Ledger_'+(fy.value==='All'?'All':fy.value)+'_'+today()+'.csv',true))notify('WhatsApp file sharing needs the Android APK');
+  closeTools()
 }
 function restoreBackup(){
   if(window.AndroidApp && AndroidApp.pickBackup){AndroidApp.pickBackup()}else backupInput.click();
@@ -418,11 +449,40 @@ function restoreBackupFromNative(text){
   saveUser(p.userEntries);if(p.images && typeof p.images==='object')saveImgs(p.images);render();notify('Backup restored successfully')
 }
 function printLedger(){closeTools();setTimeout(function(){if(window.AndroidApp&&AndroidApp.printPage)AndroidApp.printPage();else window.print()},150)}
-function shareSummary(){
+function summaryText(){
   var arr=filtered(),t=totals(arr),label=fy.value==='All'?'All years':fy.value;
-  var text='VKS Party Ledger — '+label+'\nTransactions: '+arr.length+'\nCredit: '+money(t.cr)+'\nDebit: '+money(t.dr)+'\nNet: '+money(t.bal)+'\nCurrent balance: '+money(fy.value==='All'?currentFyBalance('2026-27'):currentFyBalance(fy.value));
+  return 'VKS Party Ledger — '+label+'\nTransactions: '+arr.length+'\nCredit: '+money(t.cr)+'\nDebit: '+money(t.dr)+'\nNet: '+money(t.bal)+'\nCurrent balance: '+money(fy.value==='All'?currentFyBalance('2026-27'):currentFyBalance(fy.value))
+}
+function shareSummary(){
+  var text=summaryText();
   if(window.AndroidApp&&AndroidApp.shareText)AndroidApp.shareText(text);else if(navigator.share)navigator.share({text:text});else notify(text);
   closeTools()
+}
+function shareSummaryWhatsApp(){
+  var text=summaryText();
+  if(window.AndroidApp&&AndroidApp.shareTextWhatsApp)AndroidApp.shareTextWhatsApp(text);else if(navigator.share)navigator.share({text:text});else notify(text);
+  closeTools()
+}
+function cloudConnected(){
+  try{return !!(window.AndroidApp&&AndroidApp.cloudFolderStatus&&AndroidApp.cloudFolderStatus())}catch(e){return false}
+}
+function updateCloudStatus(){
+  var on=cloudConnected();
+  if(typeof cloudStatus!=='undefined'){cloudStatus.textContent=on?'Cloud folder connected • automatic backup ON':'Not connected — choose a Google Drive / OneDrive / Dropbox folder';cloudBadge.textContent=on?'ON':'OFF';cloudBadge.style.background=on?'#d9f7e9':'#eef1f4';cloudBadge.style.color=on?'#087f5b':'#55606c'}
+}
+function connectCloud(){
+  if(window.AndroidApp&&AndroidApp.chooseCloudFolder)AndroidApp.chooseCloudFolder();else notify('Cloud folder selection requires the Android APK')
+}
+function cloudFolderSelected(){updateCloudStatus();setTimeout(cloudBackupNow,250)}
+function cloudBackupNow(){
+  if(!cloudConnected()){notify('Choose a cloud backup folder first');return}
+  if(window.AndroidApp&&AndroidApp.cloudBackup)AndroidApp.cloudBackup(backupText())
+}
+function cloudBackupFinished(ok){updateCloudStatus();if(!ok)notify('Cloud backup failed. Please choose the folder again.')}
+function scheduleCloudBackup(){
+  clearTimeout(window._cloudTimer);
+  if(!cloudConnected())return;
+  window._cloudTimer=setTimeout(function(){if(window.AndroidApp&&AndroidApp.cloudBackup)AndroidApp.cloudBackup(backupText())},900)
 }
 function showIssues(){
   var flags=SOURCE_LEDGER.filter(function(x){

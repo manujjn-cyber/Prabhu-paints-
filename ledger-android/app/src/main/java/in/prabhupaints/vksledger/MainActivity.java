@@ -1,9 +1,12 @@
 package in.prabhupaints.vksledger;
 
 import android.app.Activity;
-import android.print.PrintManager;
+import android.app.PrintManager;
+import android.content.ActivityNotFoundException;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,6 +20,7 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
+import androidx.documentfile.provider.DocumentFile;
 
 import org.json.JSONObject;
 
@@ -33,9 +37,14 @@ public class MainActivity extends Activity {
     private Uri cameraUri;
     private String pendingSaveContent;
     private String pendingSaveMime;
+
     private static final int FILE_REQ = 9001;
     private static final int SAVE_REQ = 9002;
     private static final int RESTORE_REQ = 9003;
+    private static final int CLOUD_FOLDER_REQ = 9004;
+
+    private static final String PREFS = "vks_native";
+    private static final String CLOUD_URI = "cloud_uri";
 
     @Override public void onCreate(Bundle b) {
         super.onCreate(b);
@@ -145,6 +154,64 @@ public class MainActivity extends Activity {
             });
         }
 
+        @JavascriptInterface public void shareTextWhatsApp(String text) {
+            runOnUiThread(() -> shareToWhatsAppText(text == null ? "" : text));
+        }
+
+        @JavascriptInterface public void shareFile(String content, String mime, String fileName, boolean whatsappOnly) {
+            new Thread(() -> {
+                try {
+                    File dir = new File(getCacheDir(), "shared");
+                    if (!dir.exists() && !dir.mkdirs()) throw new Exception("Cannot create share folder");
+                    String safeName = sanitizeFileName(fileName == null ? "VKS_Ledger_Export.txt" : fileName);
+                    File file = new File(dir, safeName);
+                    try (FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8, false)) {
+                        fw.write(content == null ? "" : content);
+                    }
+                    Uri uri = FileProvider.getUriForFile(
+                        MainActivity.this,
+                        getPackageName() + ".fileprovider",
+                        file
+                    );
+                    runOnUiThread(() -> shareUri(uri, mime == null ? "application/octet-stream" : mime, safeName, whatsappOnly));
+                } catch (Exception e) {
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Share failed: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                }
+            }).start();
+        }
+
+        @JavascriptInterface public void chooseCloudFolder() {
+            runOnUiThread(() -> {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION |
+                        Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION |
+                        Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+                try {
+                    startActivityForResult(intent, CLOUD_FOLDER_REQ);
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Cloud folder picker could not be opened", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+        @JavascriptInterface public String cloudFolderStatus() {
+            return getSharedPreferences(PREFS, MODE_PRIVATE).getString(CLOUD_URI, "");
+        }
+
+        @JavascriptInterface public void cloudBackup(String content) {
+            final String payload = content == null ? "" : content;
+            new Thread(() -> {
+                boolean ok = writeCloudBackup(payload);
+                runOnUiThread(() -> {
+                    web.evaluateJavascript("cloudBackupFinished(" + ok + ")", null);
+                    Toast.makeText(MainActivity.this,
+                            ok ? "Cloud backup updated" : "Cloud backup failed. Re-select the cloud folder.",
+                            Toast.LENGTH_SHORT).show();
+                });
+            }).start();
+        }
+
         @JavascriptInterface public void printPage() {
             runOnUiThread(() -> {
                 PrintManager manager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
@@ -160,6 +227,85 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface public void toast(String msg) {
             runOnUiThread(() -> Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    private String sanitizeFileName(String name) {
+        String safe = name.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+        return safe.isEmpty() ? "VKS_Ledger_Export.txt" : safe;
+    }
+
+    private void shareUri(Uri uri, String mime, String name, boolean whatsappOnly) {
+        Intent send = new Intent(Intent.ACTION_SEND);
+        send.setType(mime);
+        send.putExtra(Intent.EXTRA_STREAM, uri);
+        send.putExtra(Intent.EXTRA_SUBJECT, name);
+        send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        send.setClipData(ClipData.newRawUri(name, uri));
+
+        if (whatsappOnly) {
+            if (launchPackage(send, "com.whatsapp")) return;
+            if (launchPackage(send, "com.whatsapp.w4b")) return;
+            Toast.makeText(this, "WhatsApp not found. Opening Android share menu.", Toast.LENGTH_SHORT).show();
+        }
+
+        send.setPackage(null);
+        try {
+            startActivity(Intent.createChooser(send, "Share " + name));
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, "No app is available to share this file", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private boolean launchPackage(Intent base, String pkg) {
+        Intent i = new Intent(base);
+        i.setPackage(pkg);
+        try {
+            startActivity(i);
+            return true;
+        } catch (ActivityNotFoundException e) {
+            return false;
+        }
+    }
+
+    private void shareToWhatsAppText(String text) {
+        Intent send = new Intent(Intent.ACTION_SEND);
+        send.setType("text/plain");
+        send.putExtra(Intent.EXTRA_TEXT, text);
+        if (launchPackage(send, "com.whatsapp")) return;
+        if (launchPackage(send, "com.whatsapp.w4b")) return;
+        Toast.makeText(this, "WhatsApp not found. Opening Android share menu.", Toast.LENGTH_SHORT).show();
+        send.setPackage(null);
+        try {
+            startActivity(Intent.createChooser(send, "Share ledger summary"));
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, "No sharing app found", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private boolean writeCloudBackup(String content) {
+        try {
+            SharedPreferences prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
+            String uriText = prefs.getString(CLOUD_URI, "");
+            if (uriText.isEmpty()) return false;
+
+            Uri treeUri = Uri.parse(uriText);
+            DocumentFile dir = DocumentFile.fromTreeUri(this, treeUri);
+            if (dir == null || !dir.canWrite()) return false;
+
+            String name = "VKS_Ledger_Auto_Backup.json";
+            DocumentFile target = dir.findFile(name);
+            if (target == null) target = dir.createFile("application/json", name);
+            if (target == null) return false;
+
+            try (OutputStream os = getContentResolver().openOutputStream(target.getUri(), "wt")) {
+                if (os == null) return false;
+                os.write(content.getBytes(StandardCharsets.UTF_8));
+                os.flush();
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 
@@ -183,7 +329,7 @@ public class MainActivity extends Activity {
                 Uri uri = data.getData();
                 try (OutputStream os = getContentResolver().openOutputStream(uri, "w")) {
                     if (os == null) throw new Exception("No output stream");
-                    os.write(pendingSaveContent.getBytes(StandardCharsets.UTF_8));
+                    os.write((pendingSaveContent == null ? "" : pendingSaveContent).getBytes(StandardCharsets.UTF_8));
                     os.flush();
                     Toast.makeText(this, "Export saved successfully", Toast.LENGTH_LONG).show();
                 } catch (Exception e) {
@@ -205,6 +351,21 @@ public class MainActivity extends Activity {
                 web.evaluateJavascript(js, null);
             } catch (Exception e) {
                 Toast.makeText(this, "Restore failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+            return;
+        }
+
+        if (requestCode == CLOUD_FOLDER_REQ && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri uri = data.getData();
+            int flags = data.getFlags() &
+                    (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            try {
+                getContentResolver().takePersistableUriPermission(uri, flags);
+                getSharedPreferences(PREFS, MODE_PRIVATE).edit().putString(CLOUD_URI, uri.toString()).apply();
+                web.evaluateJavascript("cloudFolderSelected()", null);
+                Toast.makeText(this, "Cloud backup folder connected", Toast.LENGTH_LONG).show();
+            } catch (Exception e) {
+                Toast.makeText(this, "Could not keep access to this folder", Toast.LENGTH_LONG).show();
             }
         }
     }

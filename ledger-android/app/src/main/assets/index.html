@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="theme-color" content="#173c35">
-<title>VKS Party Ledger</title>
+<title>Prabhu Paints Party Ledger</title>
 <style>
 :root{--brand:#173c35;--brand2:#245c51;--gold:#b98a3d;--bg:#f4f6f8;--card:#fff;--ink:#17212b;--muted:#6b7280;--line:#e5e7eb;--green:#087f5b;--red:#c92a2a;--shadow:0 4px 14px rgba(15,23,42,.06)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:14px system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input,select,textarea{font:inherit}
 header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,var(--brand),var(--brand2));color:white;padding:calc(15px + env(safe-area-inset-top)) 16px 14px;box-shadow:0 4px 18px #0003}
 .headrow{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.brand h1{font-size:20px;margin:0}.brand small{opacity:.78}.heroBal{text-align:right}.heroBal small{display:block;opacity:.75;font-size:10px}.heroBal b{font-size:22px}
 .wrap{padding:12px;max-width:760px;margin:auto;padding-bottom:86px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}.stat,.card,.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}.stat{padding:10px;min-width:0}.stat small{color:var(--muted);font-size:10px}.stat b{display:block;font-size:15px;margin-top:4px;overflow:hidden;text-overflow:ellipsis}.credit{color:var(--green)}.debit{color:var(--red)}
-.panel{padding:10px}.controls{display:grid;grid-template-columns:112px 1fr;gap:8px}.controls input,.controls select,.modal input,.modal select,.modal textarea,.exportBox input,.exportBox select{width:100%;padding:11px;border:1px solid #d1d5db;border-radius:10px;background:white;color:var(--ink);outline:none}.controls input:focus,.modal input:focus,.exportBox input:focus{border-color:var(--brand2);box-shadow:0 0 0 3px #245c5114}
+.panel{padding:10px}.partyRow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-bottom:9px}.partySelect{width:100%;padding:11px;border:1px solid #d1d5db;border-radius:10px;background:#fff;color:var(--ink);font-weight:800}.partyInfo{font-size:11px;color:var(--muted);margin:0 2px 9px}.partyBtn{border:1px solid var(--brand);background:#fff;color:var(--brand);border-radius:10px;padding:11px 12px;font-weight:850;white-space:nowrap}.controls{display:grid;grid-template-columns:112px 1fr;gap:8px}.controls input,.controls select,.modal input,.modal select,.modal textarea,.exportBox input,.exportBox select{width:100%;padding:11px;border:1px solid #d1d5db;border-radius:10px;background:white;color:var(--ink);outline:none}.controls input:focus,.modal input:focus,.exportBox input:focus{border-color:var(--brand2);box-shadow:0 0 0 3px #245c5114}
 .chips{display:flex;gap:7px;overflow:auto;padding-top:9px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}.chip{white-space:nowrap;border:1px solid #d9dee3;background:#fff;border-radius:999px;padding:7px 11px;font-size:12px;font-weight:700;color:#4b5563}.chip.active{background:var(--brand);border-color:var(--brand);color:#fff}
 .toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.topActions{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:8px;margin:10px 0}.btn{border:0;border-radius:10px;padding:11px 12px;font-weight:800;background:var(--brand);color:white}.btn.alt{background:#fff;color:var(--brand);border:1px solid var(--brand)}.btn.gold{background:var(--gold)}.btn.danger{background:#fff0f0;color:#b42318;border:1px solid #ffd3d3}
 .entry{padding:13px;margin:8px 0}.row{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.date{font-weight:800;font-size:13px}.part{font-size:15px;font-weight:750;margin:7px 0}.amt{font-weight:900;font-size:17px;white-space:nowrap}.balance{font-weight:800;font-size:12px}.meta{color:var(--muted);font-size:12px;line-height:1.4}.badge{display:inline-block;padding:3px 7px;border-radius:999px;background:#eef2f7;font-size:10px;font-weight:800;margin-right:4px}.badge.photo{background:#eef6ff;color:#1d4ed8}.source{font-size:10px;color:#8a8f98;margin-top:6px}
@@ -26,11 +26,13 @@ header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,var(--
 </head>
 <body>
 <header>
- <div class="headrow"><div class="brand"><h1>VKS Party Ledger</h1><small>Prabhu Paints • Verified workbook data</small></div><div class="heroBal"><small id="balLabel">CURRENT BALANCE</small><b id="heroBalance">₹0</b></div></div>
+ <div class="headrow"><div class="brand"><h1>Prabhu Paints</h1><small>Tibra Road, Modinagar - 201204 • 7014429635</small></div><div class="heroBal"><small id="balLabel">CURRENT BALANCE</small><b id="heroBalance">₹0</b></div></div>
 </header>
 <div class="wrap">
  <div class="stats" id="stats"></div>
  <div class="panel">
+  <div class="partyRow"><select id="partySelect" class="partySelect" onchange="switchParty(this.value)"></select><button class="partyBtn" onclick="openParty()">＋ Party</button></div>
+  <div id="partyInfo" class="partyInfo"></div>
   <div class="controls"><select id="fy"></select><input id="q" placeholder="Search date, bill, payment, note…"></div>
   <div class="chips">
    <button class="chip active" data-type="all">All</button><button class="chip" data-type="bill">Bills</button><button class="chip" data-type="payment">Payments</button><button class="chip" data-type="recharge">Recharge</button><button class="chip" data-type="photos">With Photos</button>
@@ -42,7 +44,7 @@ header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,var(--
 <button class="fab" onclick="openAdd()">+</button>
 
 <div class="modalBack" id="entryBack" onclick="if(event.target===this)closeEntry()"><div class="modal">
- <h2 id="mtitle">Add Entry</h2><p id="msub">Add a bill, payment, recharge or note.</p>
+ <h2 id="mtitle">Add Entry</h2><p id="msub">Add a bill, payment, recharge or note.</p><div class="note" id="entryPartyNote"></div>
  <div class="grid2"><div><label>Date</label><input type="date" id="mdate"></div><div><label>Financial year</label><select id="mfy"><option>2024-25</option><option>2025-26</option><option>2026-27</option></select></div></div>
  <label>Particular</label><input id="mpart" placeholder="Bill / Payment / Recharge / note">
  <div class="grid2"><div><label>Credit / Bill ₹</label><input id="mcr" inputmode="decimal" type="number" step="0.01"></div><div><label>Debit / Payment ₹</label><input id="mdr" inputmode="decimal" type="number" step="0.01"></div></div>
@@ -66,7 +68,7 @@ header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,var(--
 </div></div>
 
 <div class="modalBack" id="importBack" onclick="if(event.target===this)closeImport()"><div class="modal">
- <h2>Import Ledger Data</h2><p>Import new transactions without replacing the verified built-in ledger. Exact duplicates are skipped automatically.</p>
+ <h2>Import Ledger Data</h2><p>Import new transactions into the currently selected party ledger. Exact duplicates are skipped automatically.</p><div class="note" id="importPartyNote"></div>
  <div class="importBox">
   <div class="grid2">
    <div><label>Default financial year</label><select id="impFy"><option value="auto">Auto from date</option><option>2026-27</option><option>2025-26</option><option>2024-25</option></select></div>
@@ -86,14 +88,36 @@ header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,var(--
  <div class="toolbar"><button class="btn alt" onclick="closeImport()">Cancel</button><button class="btn" id="applyImportBtn" onclick="applyImport()" disabled>Import These Entries</button></div>
 </div></div>
 
+<div class="modalBack" id="partyBack" onclick="if(event.target===this)closeParty()"><div class="modal">
+ <h2>Add Party</h2><p>Create a separate ledger for another customer/party.</p>
+ <label>Party / Firm Name</label><input id="pname" placeholder="Example: ABC Traders">
+ <div class="grid2"><div><label>Short Name</label><input id="pshort" placeholder="ABC"></div><div><label>Location</label><input id="plocation" placeholder="City / Area"></div></div>
+ <label>Phone (optional)</label><input id="pphone" inputmode="tel" placeholder="Mobile number">
+ <div class="toolbar"><button class="btn alt" onclick="closeParty()">Cancel</button><button class="btn" onclick="saveParty()">Save Party</button></div>
+</div></div>
+
 <div class="viewer" id="viewer" onclick="closeViewer()"><button onclick="closeViewer()">×</button><img id="viewerImg"></div>
 
 <script src="ledger_data.js"></script>
 <script>
-const KEY='vks_user_entries_v1', IMG='vks_images_v1';
+const KEY='vks_user_entries_v1', IMG='vks_images_v1', PARTY_KEY='vks_parties_v1', CURRENT_PARTY='vks_current_party_v1';
 let editId=null,pendingPhotos=[],activeType='all',pendingImport=[],pendingImportImages={},pendingImportStats=null;
 
-const user=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}};
+const DEFAULT_PARTY={id:'vks',short:'VKS',name:'Vinod Kumar & Sons',location:'Hapur',phone:''};
+function parties(){let p=[];try{p=JSON.parse(localStorage.getItem(PARTY_KEY)||'[]')}catch(e){};if(!Array.isArray(p))p=[];if(!p.some(x=>x.id==='vks'))p.unshift({...DEFAULT_PARTY});return p}
+function saveParties(p){localStorage.setItem(PARTY_KEY,JSON.stringify(p))}
+function currentPartyId(){let id=localStorage.getItem(CURRENT_PARTY)||'vks';return parties().some(x=>x.id===id)?id:'vks'}
+function currentParty(){return parties().find(x=>x.id===currentPartyId())||DEFAULT_PARTY}
+function partyLabel(p){return (p.short?p.short+' — ':'')+p.name+(p.location?', '+p.location:'')}
+function refreshParties(){
+ let ps=parties(),cur=currentPartyId();partySelect.innerHTML=ps.map(p=>'<option value="'+esc(p.id)+'">'+esc(partyLabel(p))+'</option>').join('');partySelect.value=cur;
+ let p=currentParty();partyInfo.textContent='Party: '+partyLabel(p)+(p.phone?' • '+p.phone:'')
+}
+function switchParty(id){localStorage.setItem(CURRENT_PARTY,id);refreshParties();render()}
+function openParty(){pname.value='';pshort.value='';plocation.value='';pphone.value='';partyBack.classList.add('show');setTimeout(()=>pname.focus(),120)}
+function closeParty(){partyBack.classList.remove('show')}
+function saveParty(){let name=pname.value.trim();if(!name){alert('Enter party / firm name');return}let ps=parties(),id='party-'+Date.now(),rec={id,short:pshort.value.trim(),name,location:plocation.value.trim(),phone:pphone.value.trim()};ps.push(rec);saveParties(ps);localStorage.setItem(CURRENT_PARTY,id);closeParty();refreshParties();render()}
+const user=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]').map(x=>({...x,partyId:x.partyId||'vks'}))}catch(e){return[]}};
 const saveUser=x=>localStorage.setItem(KEY,JSON.stringify(x));
 const rawImgs=()=>{try{return JSON.parse(localStorage.getItem(IMG)||'{}')}catch(e){return{}}};
 function normalizeMap(){let m=rawImgs();Object.keys(m).forEach(k=>{if(typeof m[k]==='string')m[k]=[m[k]];if(!Array.isArray(m[k]))m[k]=[]});return m}
@@ -103,7 +127,7 @@ function money(n){return n==null?'—':'₹'+Number(n).toLocaleString('en-IN',{m
 function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function classify(x){let p=(x.particular||'').toLowerCase();if(p.includes('recharge')||p.includes('recharg'))return'recharge';if(x.credit!=null&&x.debit==null)return'bill';if(x.debit!=null&&x.credit==null)return'payment';return'other'}
 function all(){
- let src=SOURCE_LEDGER.map(x=>({...x})),u=user().map(x=>({...x}));
+ let pid=currentPartyId(),src=(pid==='vks'?SOURCE_LEDGER:[]).map(x=>({...x,partyId:'vks'})),u=user().filter(x=>(x.partyId||'vks')===pid).map(x=>({...x}));
  ['2024-25','2025-26','2026-27'].forEach(f=>{let base=0;for(let i=src.length-1;i>=0;i--){if(src[i].fy===f){base=Number(src[i].balance)||0;break}}u.filter(x=>x.fy===f).forEach(x=>{base+=(Number(x.credit)||0)-(Number(x.debit)||0);x.balance=base})});
  return [...src,...u]
 }
@@ -112,19 +136,20 @@ function totals(arr){return arr.reduce((a,x)=>{a.cr+=Number(x.credit)||0;a.dr+=N
 function currentBalance(f){let arr=all().filter(x=>x.fy===f);return arr.length?Number(arr[arr.length-1].balance)||0:0}
 
 function init(){
+ refreshParties();
  ['All','2026-27','2025-26','2024-25'].forEach(x=>fy.innerHTML+=`<option>${x}</option>`);fy.value='2026-27';fy.onchange=render;q.oninput=render;mphoto.onchange=readPhotos;
  document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{activeType=b.dataset.type;document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('active',x===b));render()});
  render()
 }
 function render(){
- let arr=screenRows(),t=totals(arr),sel=fy.value,bal=sel==='All'?currentBalance('2026-27'):currentBalance(sel);
- heroBalance.textContent=money(bal);balLabel.textContent=sel==='All'?'2026-27 CURRENT BALANCE':sel+' BALANCE';
+ refreshParties();let p=currentParty(),arr=screenRows(),t=totals(arr),sel=fy.value,bal=sel==='All'?currentBalance('2026-27'):currentBalance(sel);
+ heroBalance.textContent=money(bal);balLabel.textContent=(p.short||p.name)+' • '+(sel==='All'?'2026-27 BALANCE':sel+' BALANCE');
  stats.innerHTML=`<div class=stat><small>Entries</small><b>${arr.length}</b></div><div class=stat><small>Credit</small><b class=credit>${money(t.cr)}</b></div><div class=stat><small>Debit</small><b class=debit>${money(t.dr)}</b></div><div class=stat><small>Filtered Net</small><b>${money(t.cr-t.dr)}</b></div>`;
  list.innerHTML=arr.length?'':'<div class="card empty">No matching entries</div>';
  arr.slice().reverse().forEach(x=>{let cr=x.credit!=null,amount=cr?x.credit:x.debit,ps=photoList(x.id),ph=ps.length?`<div class=photos>${ps.slice(0,4).map((p,i)=>`<img class=thumb src="${p}" onclick="event.stopPropagation();openViewer('${x.id}',${i})">`).join('')}${ps.length>4?`<span class=badge>+${ps.length-4} more</span>`:''}</div>`:'';list.innerHTML+=`<div class="card entry"><div class=row><span class=date>${x.date||'Date not entered'}</span><span class="amt ${cr?'credit':'debit'}">${cr?'+':'−'} ${money(amount)}</span></div><div class=part>${esc(x.particular)}</div>${x.notes?`<div class=meta>${esc(x.notes)}</div>`:''}<div class=row><span><span class=badge>${x.fy}</span><span class=badge>${x.source==='Imported XLSX'?'SOURCE':x.source==='Imported file'?'IMPORT':'USER'}</span>${ps.length?`<span class="badge photo">${ps.length} PHOTO${ps.length>1?'S':''}</span>`:''}</span><span class=balance>Bal: ${money(x.balance)}</span></div>${ph}<button class=photoBtn onclick="openEntry('${x.id}')">${ps.length?'View / add pictures':'Add pictures / edit'}</button><div class=source>${x.source==='Imported XLSX'?'Workbook row '+x.sourceRow:x.source==='Imported file'?'Imported file entry':'Added in app'}</div></div>`})
 }
-function openAdd(){editId=null;pendingPhotos=[];[mdate,mfy,mpart,mcr,mdr,mnotes].forEach(el=>el.disabled=false);mtitle.textContent='Add Entry';msub.textContent='Add a bill, payment, recharge or note.';mdate.value=new Date().toISOString().slice(0,10);mfy.value=fy.value==='All'?'2026-27':fy.value;mpart.value='';mcr.value='';mdr.value='';mnotes.value='';mphoto.value='';renderPhotoPreview();entryBack.classList.add('show')}
-function openEntry(id){let x=all().find(z=>z.id===id);if(!x)return;editId=id;pendingPhotos=[];let imported=x.source==='Imported XLSX';mtitle.textContent=imported?'Transaction Pictures':'Edit Entry';msub.textContent=imported?'Source ledger fields are protected. You can add or remove pictures.':'Edit entry and manage its pictures.';mdate.value=x.date||'';mfy.value=x.fy;mpart.value=x.particular;mcr.value=x.credit??'';mdr.value=x.debit??'';mnotes.value=x.notes||'';[mdate,mfy,mpart,mcr,mdr,mnotes].forEach(el=>el.disabled=imported);mphoto.value='';renderPhotoPreview();entryBack.classList.add('show')}
+function openAdd(){editId=null;pendingPhotos=[];entryPartyNote.textContent='Party: '+partyLabel(currentParty());[mdate,mfy,mpart,mcr,mdr,mnotes].forEach(el=>el.disabled=false);mtitle.textContent='Add Entry';msub.textContent='Add a bill, payment, recharge or note.';mdate.value=new Date().toISOString().slice(0,10);mfy.value=fy.value==='All'?'2026-27':fy.value;mpart.value='';mcr.value='';mdr.value='';mnotes.value='';mphoto.value='';renderPhotoPreview();entryBack.classList.add('show')}
+function openEntry(id){let x=all().find(z=>z.id===id);if(!x)return;editId=id;entryPartyNote.textContent='Party: '+partyLabel(currentParty());pendingPhotos=[];let imported=x.source==='Imported XLSX';mtitle.textContent=imported?'Transaction Pictures':'Edit Entry';msub.textContent=imported?'Source ledger fields are protected. You can add or remove pictures.':'Edit entry and manage its pictures.';mdate.value=x.date||'';mfy.value=x.fy;mpart.value=x.particular;mcr.value=x.credit??'';mdr.value=x.debit??'';mnotes.value=x.notes||'';[mdate,mfy,mpart,mcr,mdr,mnotes].forEach(el=>el.disabled=imported);mphoto.value='';renderPhotoPreview();entryBack.classList.add('show')}
 function closeEntry(){entryBack.classList.remove('show');[mdate,mfy,mpart,mcr,mdr,mnotes].forEach(el=>el.disabled=false);pendingPhotos=[]}
 function readPhotos(e){let files=[...e.target.files];let existing=editId?photoList(editId).length:0;if(existing+pendingPhotos.length+files.length>8){alert('Maximum 8 pictures per transaction.');files=files.slice(0,Math.max(0,8-existing-pendingPhotos.length))}files.forEach(f=>{let r=new FileReader();r.onload=()=>compressPhoto(r.result);r.readAsDataURL(f)})}
 function compressPhoto(src){let im=new Image();im.onload=()=>{let max=900,sc=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*sc));c.height=Math.max(1,Math.round(im.height*sc));c.getContext('2d').drawImage(im,0,0,c.width,c.height);pendingPhotos.push(c.toDataURL('image/jpeg',.66));renderPhotoPreview()};im.src=src}
@@ -134,13 +159,13 @@ function saveEntry(){
  let src=SOURCE_LEDGER.find(x=>x.id===editId);
  if(src){if(pendingPhotos.length){let m=normalizeMap(),arr=photoList(src.id);m[src.id]=[...arr,...pendingPhotos].slice(0,8);if(!saveImgs(m))return}closeEntry();render();return}
  let cr=mcr.value===''?null:+mcr.value,dr=mdr.value===''?null:+mdr.value;if(cr==null&&dr==null){alert('Enter Credit/Bill or Debit/Payment amount');return}if(cr!=null&&dr!=null){alert('Use either Credit or Debit for one entry');return}
- let u=user(),id=editId||'user-'+Date.now(),rec={id,fy:mfy.value,date:mdate.value,particular:mpart.value.trim()||(cr!=null?'Bill':'Payment'),credit:cr,debit:dr,balance:null,notes:mnotes.value.trim(),sourceRow:null,source:'User entry'},pos=u.findIndex(x=>x.id===id);if(pos>=0)u[pos]=rec;else u.push(rec);saveUser(u);
+ let u=user(),id=editId||'user-'+Date.now(),rec={id,partyId:currentPartyId(),fy:mfy.value,date:mdate.value,particular:mpart.value.trim()||(cr!=null?'Bill':'Payment'),credit:cr,debit:dr,balance:null,notes:mnotes.value.trim(),sourceRow:null,source:'User entry'},pos=u.findIndex(x=>x.id===id);if(pos>=0)u[pos]=rec;else u.push(rec);saveUser(u);
  if(pendingPhotos.length){let m=normalizeMap(),arr=photoList(id);m[id]=[...arr,...pendingPhotos].slice(0,8);if(!saveImgs(m))return}
  closeEntry();render()
 }
 
 
-function openImport(){pendingImport=[];pendingImportImages={};pendingImportStats=null;impPaste.value='';importPreview.innerHTML='<div class="note">Choose Excel, CSV, JSON, or paste rows to preview before importing.</div>';applyImportBtn.disabled=true;impFy.value=fy.value==='All'?'auto':fy.value;importBack.classList.add('show')}
+function openImport(){pendingImport=[];importPartyNote.textContent='Importing into: '+partyLabel(currentParty());pendingImportImages={};pendingImportStats=null;impPaste.value='';importPreview.innerHTML='<div class="note">Choose Excel, CSV, JSON, or paste rows to preview before importing.</div>';applyImportBtn.disabled=true;impFy.value=fy.value==='All'?'auto':fy.value;importBack.classList.add('show')}
 function closeImport(){importBack.classList.remove('show');pendingImport=[];pendingImportImages={};pendingImportStats=null}
 function pickImport(kind){if(window.AndroidApp&&AndroidApp.pickImport){AndroidApp.pickImport(kind)}else alert('File import requires the Android APK')}
 function usePastedData(){let txt=impPaste.value.trim();if(!txt){alert('Paste CSV or tab-separated data first.');return}stageDelimited(txt,'Pasted data')}
@@ -223,7 +248,7 @@ function stageRows(rows,pics,name){
 }
 function applyImport(){
  if(!pendingImport.length)return;let u=user(),m=normalizeMap(),now=Date.now(),added=0;
- pendingImport.forEach((x,i)=>{let old=x.oldId,id='import-'+now+'-'+i,rec={id,fy:x.fy,date:x.date,particular:x.particular,credit:x.credit,debit:x.debit,balance:null,notes:x.notes,sourceRow:null,source:'Imported file',createdAt:now+i};u.push(rec);let ps=pendingImportImages[old];if(ps){if(typeof ps==='string')ps=[ps];if(Array.isArray(ps)&&ps.length)m[id]=ps.slice(0,8)}added++});
+ pendingImport.forEach((x,i)=>{let old=x.oldId,id='import-'+now+'-'+i,rec={id,partyId:currentPartyId(),fy:x.fy,date:x.date,particular:x.particular,credit:x.credit,debit:x.debit,balance:null,notes:x.notes,sourceRow:null,source:'Imported file',createdAt:now+i};u.push(rec);let ps=pendingImportImages[old];if(ps){if(typeof ps==='string')ps=[ps];if(Array.isArray(ps)&&ps.length)m[id]=ps.slice(0,8)}added++});
  saveUser(u);saveImgs(m);closeImport();render();alert('Imported '+added+' new entries successfully. Exact duplicates were skipped.')
 }
 
@@ -233,12 +258,12 @@ function exportRows(){let arr=all(),f=exFy.value,typ=exType.value,from=exFrom.va
 function exportCalc(){let arr=exportRows(),t=totals(arr),first=arr[0],last=arr[arr.length-1],opening=first?Number(first.balance||0)-(Number(first.credit)||0)+(Number(first.debit)||0):0,closing=last?Number(last.balance||0):0,dated=arr.filter(x=>x.date),from=exFrom.value||(dated[0]?.date||'Start'),to=exTo.value||(dated[dated.length-1]?.date||'End');return{arr,count:arr.length,cr:t.cr,dr:t.dr,net:t.cr-t.dr,opening,closing,timeline:from+' to '+to}}
 function updateExportCalc(){let c=exportCalc();calcGrid.innerHTML=`<div class=calc><small>Entries</small><b>${c.count}</b></div><div class=calc><small>Total Credit</small><b class=credit>${money(c.cr)}</b></div><div class=calc><small>Total Debit</small><b class=debit>${money(c.dr)}</b></div><div class=calc><small>Net Amount</small><b>${money(c.net)}</b></div><div class=calc><small>Opening Balance</small><b>${money(c.opening)}</b></div><div class=calc><small>Closing Balance</small><b>${money(c.closing)}</b></div>`}
 function exportTypeLabel(){return({all:'All transactions',bill:'Bills / Credit',payment:'Payments / Debit',recharge:'Recharge',photos:'With Photos'})[exType.value]||exType.value}
-function reportPayload(){let c=exportCalc();return JSON.stringify({fy:exFy.value,type:exportTypeLabel(),timeline:c.timeline,count:c.count,credit:money(c.cr),debit:money(c.dr),net:money(c.net),opening:money(c.opening),closing:money(c.closing),rows:c.arr.map(x=>({date:x.date||'',particular:x.particular||'',credit:x.credit,debit:x.debit,balance:x.balance,notes:x.notes||'',fy:x.fy}))})}
+function reportPayload(){let c=exportCalc(),p=currentParty();return JSON.stringify({partyName:p.name,partyShort:p.short||'',partyLocation:p.location||'',partyPhone:p.phone||'',fy:exFy.value,type:exportTypeLabel(),timeline:c.timeline,count:c.count,credit:money(c.cr),debit:money(c.dr),net:money(c.net),opening:money(c.opening),closing:money(c.closing),rows:c.arr.map(x=>({date:x.date||'',particular:x.particular||'',credit:x.credit,debit:x.debit,balance:x.balance,notes:x.notes||'',fy:x.fy}))})}
 function savePdf(){if(window.AndroidApp&&AndroidApp.exportPdf){AndroidApp.exportPdf(reportPayload(),false);closeExport()}else alert('PDF export requires Android app')}
 function saveJpeg(){if(window.AndroidApp&&AndroidApp.exportJpeg){AndroidApp.exportJpeg(reportPayload(),false);closeExport()}else alert('JPEG export requires Android app')}
 function sharePdf(){if(window.AndroidApp&&AndroidApp.exportPdf){AndroidApp.exportPdf(reportPayload(),true);closeExport()}else alert('PDF sharing requires Android app')}
 function shareJpeg(){if(window.AndroidApp&&AndroidApp.exportJpeg){AndroidApp.exportJpeg(reportPayload(),true);closeExport()}else alert('JPEG sharing requires Android app')}
-function exportBackup(){let payload={app:'VKS Party Ledger',version:'1.1-pro-import',exportedAt:new Date().toISOString(),sourceStats:SOURCE_STATS,sourceLedger:SOURCE_LEDGER,userEntries:user(),images:normalizeMap()};let content=JSON.stringify(payload,null,2),name='VKS_Ledger_Backup_'+new Date().toISOString().slice(0,10)+'.json';if(window.AndroidApp&&AndroidApp.saveFile)AndroidApp.saveFile(content,'application/json',name);closeExport()}
+function exportBackup(){let payload={app:'Prabhu Paints Party Ledger',version:'1.1-pro-multiparty',exportedAt:new Date().toISOString(),business:{name:'Prabhu Paints',address:'Tibra Road, Modinagar - 201204',phone:'7014429635'},parties:parties(),currentPartyId:currentPartyId(),sourceStats:SOURCE_STATS,sourceLedger:SOURCE_LEDGER,userEntries:user(),images:normalizeMap()};let content=JSON.stringify(payload,null,2),name='VKS_Ledger_Backup_'+new Date().toISOString().slice(0,10)+'.json';if(window.AndroidApp&&AndroidApp.saveFile)AndroidApp.saveFile(content,'application/json',name);closeExport()}
 function showIssues(){let flags=SOURCE_LEDGER.filter(x=>!x.date);alert(flags.length+' imported transaction(s) have no date in the original workbook. They are preserved without guessing.\n\n'+flags.slice(0,8).map(x=>x.fy+' row '+x.sourceRow+' — '+x.particular+' '+money(x.credit??x.debit)).join('\n'))}
 function openViewer(id,i){let p=photoList(id)[i];if(p)openPreviewSrc(p)}function openPreviewSrc(src){viewerImg.src=src;viewer.classList.add('show')}function closeViewer(){viewer.classList.remove('show');viewerImg.src=''}
 init();
